@@ -25,12 +25,13 @@ https://github.com/nmelhado/league-page/blob/master/TRAINING_WHEELS.md#ii-adding
 // To omit an optional field, set it's value to null
 
 export const managers = [
-    // {
-    //   "roster": 1,  // ID of the roster that the manager manages (look at the order of the power rankings graph)
-    //   "name": "Your Name",
-    //   "tookOver": 2020, // (optional) used if a manager took over a team, delete this line or change to null otherwise
+    {
+    //   "roster": 3,  // (DEPRECATED! Don't use this anymore) ID of the roster that the manager manages (look at the order of the power rankings graph)
+       "managerID": "1114401433161482240",  // the user's manager ID, go to https://api.sleeper.app/v1/league/<your_league_id>/users to find user IDs (you can use older leagueIDs to find user IDs for managers that are no longer in the league)
+       "name": "Aaron Slack,
+    //   "tookOver": 2020, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
     //   "location": "Brooklyn", // (optional)
-    //   "bio": "Lorem ipsum...",
+       "bio": "His moniker is quite fitting, and his draft strategy followed suit, grabbing both Joe Burrow and Brock Purdy in the draft. Barista by day, and bartender by night, Aaron is a man of many talents, but it remains to be seen if managing a Fantasy Football team is one of them. Drafting two Broncos players back to back may be a stroke of genius or may be his downfall.",
     //   "photo": "/managers/name.jpg", // square ratio recommended (no larger than 500x500)
     //   "fantasyStart": 2014, // (optional) when did the manager start playing fantasy football
     //   "favoriteTeam": "nyj", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
@@ -43,10 +44,10 @@ export const managers = [
     //   "favoritePlayer": 1426, // (optional) this corresponds to the Sleeper player ID (https://api.sleeper.app/v1/players/nfl)
     //   "valuePosition": "WR", // (optional) Favorite position (QB, WR, RB, TE, etc.)
     //   "rookieOrVets": "Rookies", // (optional) 'Rookies' or 'Vets' (anything else and you will need to add a new png to /static/ similar to the 'Rookies.png' and 'Vets.png' currently in there)
-    //   "philosophy": "Your fantasy team's philosophy",
-    //   "tradingScale": 10, // 1 - 10
-    //   "preferredContact": "Text", // 'Text', 'WhatsApp', 'Sleeper', 'Email', 'Phone', 'Discord', and 'Carrier Pigeon' are currently supplied in the template
-    // },
+    //   "philosophy": "Your fantasy team's philosophy", // (optional)
+    //   "tradingScale": 10, // 1 - 10 (optional)
+    //   "preferredContact": "Text",  // (optional) 'Text', 'WhatsApp', 'Sleeper', 'Email', 'Phone', 'Discord', and 'Carrier Pigeon' are currently supplied in the template
+     },
     // {
     //   "roster": 2,  // ID of the roster that the manager manages (look at the order of the power rankings graph)
     //   "name": "Your Name",
@@ -104,10 +105,10 @@ export const managers = [
     // {
     //   "roster": 3,  // (DEPRECATED! Don't use this anymore) ID of the roster that the manager manages (look at the order of the power rankings graph)
     //   "managerID": "12345678",  // the user's manager ID, go to https://api.sleeper.app/v1/league/<your_league_id>/users to find user IDs (you can use older leagueIDs to find user IDs for managers that are no longer in the league)
-    //   "name": "Your Name",
+    //   "name": "Aaron Slack,
     //   "tookOver": 2020, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
     //   "location": "Brooklyn", // (optional)
-    //   "bio": "Lorem ipsum...",
+    //   "bio": "His moniker is quite fitting, and his draft strategy followed suit, grabbing both Joe Burrow and Brock Purdy in the draft. Barista by day, and bartender by night, Aaron is a man of many talents, but it remains to be seen if managing a Fantasy Football team is one of them. Drafting two Broncos players back to back may be a stroke of genius or may be his downfall.",
     //   "photo": "/managers/name.jpg", // square ratio recommended (no larger than 500x500)
     //   "fantasyStart": 2014, // (optional) when did the manager start playing fantasy football
     //   "favoriteTeam": "nyj", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
