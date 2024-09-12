@@ -10,6 +10,8 @@ export const homepageText = `
 <p>Game of Inches was a league born out of necessity. League Commissioner Ricky Dorn was tired of leagues where he only knew half the managers (at best) and the bottom teams always gave up halfway through the season. After a failed attempt to join a Dynasty League, Ricky decided enough was enough! He embarked on a journey to set up a League that he could be proud of and look forward to every season. He watched hours of videos, read tens of blogs, and spent countless minutes pondering over how to organize this league.</p> 
 <p>2024 is the dawning of a new league. The best league with very handsome managers, with the biggest, the best managers. This is a league of competitors: people who hate losing more than they enjoy winning. The stakes are high for this first season. Will it set the tone for the following seasons? Or will there be monumental changes implemented for league integrity?</p>
 <p></p>
+<p></p>
+<p></p>
 `;
 
 /*   STEP 3   */
