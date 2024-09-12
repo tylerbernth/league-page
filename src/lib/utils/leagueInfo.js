@@ -29,7 +29,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "His moniker is quite fitting, and his draft strategy followed suit, grabbing both Joe Burrow and Brock Purdy in the draft. Barista by day, and bartender by night, Aaron is a man of many talents, but it remains to be seen if managing a Fantasy Football team is one of them. Drafting two Broncos players back to back may be a stroke of genius or may be his downfall.",
-       "photo": "/managers/tyler.png", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "lar", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
@@ -52,7 +52,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "He might as well be a spokesperson for the Sleeper app with how enthusiastically he was pushing for this league to use it. Brandon is a menace on the basketball court and he might well be one in Fantasy Football as well. He was unsuccessful in his attempt to trade to a lower draft position, but he was able to load up on two premier QBs as a consolation.",
-       "photo": "/managers/tyler.png", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "lar", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
