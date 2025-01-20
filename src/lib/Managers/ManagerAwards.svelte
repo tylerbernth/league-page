@@ -182,7 +182,7 @@
         }
     }
 
-    $: computePodiums(rosterID);
+   // $: computePodiums(rosterID);
 
     const computeAward = (award) => {
         switch (award) {
