@@ -55,7 +55,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "He might as well be a spokesperson for the Sleeper app with how enthusiastically he was pushing for this league to use it. Brandon is a menace on the basketball court and he might well be one in Fantasy Football as well. He was unsuccessful in his attempt to trade to a lower draft position, but he was able to load up on two premier QBs as a consolation.",
-       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/brandon.jpg", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "lar", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
@@ -78,7 +78,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "He may not have a fancy team name but he does have a strategy. The strategy: waiting until round 8 to draft a QB. Justin was a catalyst in the formation of the Game of Inches League after being unceremoniously cut from a dynasty league last season. It’s possible they were too intimidated by his prowess. Justin drafted the fastest player in the NFL combine history this season, and he hopes that his team’s success will take off just as quickly.",
-       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/justin.jpg", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "lac", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Dynasty", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
@@ -147,7 +147,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "If you want to know what his moniker means, you’ll have to ask him. Name aside, it was clear from the beginning that Michael has Fantasy Football running in his veins. Not only does he have a pulse on the NFL, but he has a beat on College Football as well. Will his inundation of football at two levels result in his team booming or busting?",
-       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/michael.jpg", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "nyg", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
