@@ -32,7 +32,7 @@ export const managers = [
        "tookOver": 2024, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "His moniker is quite fitting, and his draft strategy followed suit, grabbing both Joe Burrow and Brock Purdy in the draft. Barista by day, and bartender by night, Aaron is a man of many talents, but it remains to be seen if managing a Fantasy Football team is one of them. Drafting two Broncos players back to back may be a stroke of genius or may be his downfall.",
-       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/aaron.png", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "lar", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
@@ -101,7 +101,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "Kai may not have enough time to hang out this season because he is in 5 fantasy football leagues across 4 different apps (yes, even the NFL app). What everyone wants to know is if there were any players he drafted on all his rosters? Despite being a die hard Packers fan, Kai selected Justin Jefferson 2nd overall - further proof that all loyalties live and die with Fantasy Football.",
-       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/kai.png", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "gb", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
@@ -124,7 +124,7 @@ export const managers = [
        "tookOver": null, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "He didn’t really get into fantasy football until fairly recently, but he reluctantly left fantasy basketball for “greener pastures”. A man with no loyalties to any team, Kevin tends to draft players that look good on paper or as Taylor Swift’s arm candy. Another player Kevin tends to pick up is Younghoe Koo, but playing for the first time in a league with no kickers, Kevin will have to find a new “go-to” player. He doesn’t always know what he’s doing, but he’s a vulture on the waiver wire and he’s been lucky with snagging players at the right moments.",
-       "photo": "/managers/question.jpg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/kevin.png", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "lar", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
