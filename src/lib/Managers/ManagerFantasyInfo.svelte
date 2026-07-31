@@ -1,251 +1,140 @@
 <script>
     export let viewManager, players, changeManager;
+
+    const getPositionColor = (pos) => {
+        switch (pos) {
+            case 'QB': return 'bg-rose-600/90 text-white';
+            case 'RB': return 'bg-emerald-600/90 text-white';
+            case 'WR': return 'bg-sky-600/90 text-white';
+            case 'TE': return 'bg-amber-600/90 text-white';
+            case 'K': return 'bg-purple-600/90 text-white';
+            case 'DEF': return 'bg-indigo-600/90 text-white';
+            case 'Picks': return 'bg-lime-600/90 text-white';
+            default: return 'bg-slate-700 text-slate-100';
+        }
+    };
+
+    const handlePlayerImgError = (e) => {
+        e.target.src = 'https://sleepercdn.com/images/v2/icons/player_default.png';
+    };
+
+    const handleGenericImgError = (e) => {
+        e.target.src = '/managers/question.jpg';
+    };
 </script>
 
-<style>
-    .fantasyInfos {
-        display: flex;
-        justify-content: space-around;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        padding: 0 0 2em;
-        margin: 3em 0 4em;
-        border-bottom: 1px solid var(--aaa);
-        border-top: 1px solid var(--aaa);
-        box-shadow: 0 0 8px 4px var(--ccc);
-    }
-
-    .infoSlot {
-        text-align: center;
-        margin: 2em 1em 0;
-    }
-
-    .infoIcon {
-        display: inline-flex;
-        height: 70px;
-        width: 70px;
-        justify-content: center;
-        align-items: center;
-        border-radius: 100%;
-        border: 1px solid var(--ccc);
-        overflow: hidden;
-        background-color: var(--fff);
-		transition: box-shadow 0.4s;
-    }
-
-    .playerIcon {
-        align-items:flex-end;
-    }
-
-    .infoLabel {
-        font-size: 0.7em;
-        color: var(--blueOne);
-        font-weight: 700;
-        margin-bottom: 1em;
-        height: 30px;
-        width: 90px;
-        text-align: center;
-        line-height: 1.2em;
-    }
-
-    .infoAnswer {
-        font-size: 0.8em;
-        color: var(--g555);
-        margin-top: 1em;
-        width: 90px;
-        text-align: center;
-        line-height: 1.2em;
-    }
-
-    .tradingScale {
-        line-height: 70px;
-        font-size: 55px;
-        color: var(--blueOne);
-    }
-
-    .rookiesOrVets {
-        height: 65px;
-        vertical-align: middle;
-    }
-
-    .infoRival {
-        cursor: pointer;
-    }
-
-    .infoRival:hover .infoIcon {
-        box-shadow: 0 0 6px 4px var(--aaa);
-        border: 1px solid var(--aaa);
-    }
-
-    .rival {
-        height: 100%;
-    }
-
-    .rebuildOrWin {
-        height: 70px;
-    }
-
-    .valuePosition {
-        line-height: 70px;
-        font-size: 25px;
-        color: var(--fff);
-    }
-
-    .QB {
-        background-color: var(--QB);
-    }
-
-    .WR {
-        background-color: var(--WR);
-    }
-
-    .RB {
-        background-color: var(--RB);
-    }
-
-    .TE {
-        background-color: var(--TE);
-    }
-
-    .Picks {
-        background: #73b647;
-    }
-    .K {
-        background-color: var(--K);
-    }
-
-    .DEF {
-        background-color: var(--DEF);
-    }
-
-    .CB {
-        background-color: #ffcc7a;
-    }
-
-    .SS {
-        background-color: #b7a1db;
-    }
-
-    .FS {
-        background-color: #ebe7b3;
-    }
-
-    .DE {
-        background-color: #b1d0e9;
-    }
-
-    .DL {
-        background-color: #c392d3;
-    }
-
-    .LB {
-        background-color: #98c097;
-    }
-
-    .favoritePlayer {
-        height: 65px;
-        vertical-align: bottom;
-    }
-
-    /* media queries */
-
-    @media (max-width: 731px) {
-        .infoSlot {
-            margin: 2em 3em 0;
-        }
-    }
-
-    @media (max-width: 558px) {
-        .infoSlot {
-            margin: 2em 2em 0;
-        }
-    }
-
-    @media (max-width: 461px) {
-        .infoSlot {
-            margin: 2em 1em 0;
-        }
-    }
-</style>
-
-<div class="fantasyInfos">
-    <!-- Rookies or Vets (optional) -->
+<div class="mx-auto my-8 flex w-full max-w-6xl flex-wrap justify-around rounded-2xl border border-indigo-500/10 bg-slate-900/60 p-6 shadow-xl backdrop-blur-md">
+    <!-- Rookie or Vets -->
     {#if viewManager.rookieOrVets}
-        <div class="infoSlot">
-            <div class="infoLabel">
-                Rookie or Vet Preference
+        <div class="m-3 flex w-24 sm:w-28 flex-col items-center text-center">
+            <div class="flex h-8 w-full items-center justify-center text-[11px] font-bold text-indigo-400 leading-tight">
+                Rookie or Vet
             </div>
-            <div class="infoIcon">
-                <img class="rookiesOrVets" src="/{viewManager.rookieOrVets}.png" alt="rookie or vet preference"/>
+            <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
+                <img 
+                    class="h-12 w-auto object-contain" 
+                    src="/{viewManager.rookieOrVets.toLowerCase()}.png" 
+                    alt="rookie or vet preference"
+                    onerror={handleGenericImgError}
+                />
             </div>
-            <div class="infoAnswer">
+            <div class="mt-2 text-xs text-slate-400 capitalize leading-tight">
                 {viewManager.rookieOrVets}
             </div>
         </div>
     {/if}
-    <!-- Favorite fantasy position (optional) -->
+
+    <!-- Favorite Fantasy Asset -->
     {#if viewManager.valuePosition}
-        <div class="infoSlot">
-            <div class="infoLabel">
-                Favorite Fantasy Asset
+        <div class="m-3 flex w-24 sm:w-28 flex-col items-center text-center">
+            <div class="flex h-8 w-full items-center justify-center text-[11px] font-bold text-indigo-400 leading-tight">
+                Favorite Asset
             </div>
-            <div class="infoIcon {viewManager.valuePosition}">
-                <span class="valuePosition">{viewManager.valuePosition}</span>
+            <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 shadow-md {getPositionColor(viewManager.valuePosition)}">
+                <span class="text-xl sm:text-2xl font-black">{viewManager.valuePosition}</span>
+            </div>
+            <div class="mt-2 text-xs text-slate-400 capitalize leading-tight">
+                {viewManager.valuePosition}
             </div>
         </div>
     {/if}
+
+    <!-- Desire to Trade -->
     {#if viewManager.tradingScale}
-        <!-- Trading Scale -->
-        <div class="infoSlot">
-            <div class="infoLabel">
-                Desire to Trade
+        <div class="m-3 flex w-24 sm:w-28 flex-col items-center text-center">
+            <div class="flex h-8 w-full items-center justify-center text-[11px] font-bold text-indigo-400 leading-tight">
+                Trade Frequency
             </div>
-            <div class="infoIcon">
-                <span class="tradingScale">{viewManager.tradingScale}</span>
+            <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
+                <span class="text-2xl sm:text-3xl font-black text-indigo-400">{viewManager.tradingScale}</span>
             </div>
-            <div class="infoAnswer">
-                {viewManager.tradingScale} out of 10
+            <div class="mt-2 text-xs text-slate-400 leading-tight">
+                {viewManager.tradingScale} / 10
             </div>
         </div>
     {/if}
-    <!-- Favorite player (optioonal) -->
+
+    <!-- Favorite Player -->
     {#if viewManager.favoritePlayer}
-        <div class="infoSlot">
-            <div class="infoLabel">
+        <div class="m-3 flex w-24 sm:w-28 flex-col items-center text-center">
+            <div class="flex h-8 w-full items-center justify-center text-[11px] font-bold text-indigo-400 leading-tight">
                 Favorite Player
             </div>
-            <div class="infoIcon playerIcon">
-                <img class="favoritePlayer" src="https://sleepercdn.com/content/nfl/players/{viewManager.favoritePlayer}.jpg" alt="favorite player"/>
+            <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-end justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
+                <img 
+                    class="h-14 sm:h-18 w-auto object-cover" 
+                    src="https://sleepercdn.com/content/nfl/players/{viewManager.favoritePlayer}.jpg" 
+                    alt="favorite player"
+                    onerror={handlePlayerImgError}
+                />
             </div>
-            <div class="infoAnswer">
-                {players[viewManager.favoritePlayer].fn} {players[viewManager.favoritePlayer].ln}
+            <div class="mt-2 text-xs text-slate-400 leading-tight">
+                {players[viewManager.favoritePlayer]?.fn || ''} {players[viewManager.favoritePlayer]?.ln || ''}
             </div>
         </div>
     {/if}
-    <!-- Rebuild Mod (optional) -->
+
+    <!-- Rebuild Mode -->
     {#if viewManager.mode}
-        <div class="infoSlot">
-            <div class="infoLabel">
-                Win Now or Rebuild?
+        <div class="m-3 flex w-24 sm:w-28 flex-col items-center text-center">
+            <div class="flex h-8 w-full items-center justify-center text-[11px] font-bold text-indigo-400 leading-tight">
+                Team Strategy
             </div>
-            <div class="infoIcon">
-                <img class="rebuildOrWin" src="/{viewManager.mode.replace(' ', '%20')}.png" alt="win now or rebuild"/>
+            <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
+                <img 
+                    class="h-12 sm:h-16 w-auto object-contain" 
+                    src="/{viewManager.mode.toLowerCase().replace(/\s+/g, '-')}.png" 
+                    alt="win now or rebuild"
+                    onerror={handleGenericImgError}
+                />
             </div>
-            <div class="infoAnswer">
+            <div class="mt-2 text-xs text-slate-400 capitalize leading-tight">
                 {viewManager.mode}
             </div>
         </div>
     {/if}
+
     <!-- Rival -->
-    <div class="infoSlot infoRival" onclick={() => changeManager(viewManager.rival.link)}>
-        <div class="infoLabel">
-            Rival
-        </div>
-        <div class="infoIcon">
-            <img class="rival" src="{viewManager.rival.image}" alt="rival"/>
-        </div>
-        <div class="infoAnswer">
-            {viewManager.rival.name}
-        </div>
-    </div>
+    {#if viewManager.rival}
+        <button 
+            type="button"
+            class="group m-3 flex w-24 sm:w-28 flex-col items-center text-center focus:outline-none"
+            onclick={() => changeManager(viewManager.rival.link)}
+        >
+            <div class="flex h-8 w-full items-center justify-center text-[11px] font-bold text-indigo-400 group-hover:text-cyan-400 transition-colors leading-tight">
+                Rival
+            </div>
+            <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-md ring-2 ring-transparent transition-all group-hover:scale-105 group-hover:border-cyan-500/50 group-hover:ring-cyan-500/20">
+                <img 
+                    class="h-full w-full object-cover" 
+                    src="{viewManager.rival.image}" 
+                    alt="rival"
+                    onerror={handleGenericImgError}
+                />
+            </div>
+            <div class="mt-2 text-xs font-medium text-slate-300 group-hover:text-cyan-400 transition-colors leading-tight">
+                {viewManager.rival.name}
+            </div>
+        </button>
+    {/if}
 </div>

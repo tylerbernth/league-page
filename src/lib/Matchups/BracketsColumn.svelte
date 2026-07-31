@@ -1,379 +1,262 @@
 <script>
-    import { round } from "$lib/utils/helper";
+	import { round } from "$lib/utils/helper";
 	import { getAvatarFromTeamManagers, getTeamNameFromTeamManagers } from "$lib/utils/helperFunctions/universalFunctions";
 
-    export let leagueTeamManagers, players, matchCol, playoffsStart, ix, playoffLength, consolation = false, losers = false, numRosters, consolationNum, selected;
+	export let leagueTeamManagers, players, matchCol = [], playoffsStart, ix, playoffLength, consolation = false, losers = false, numRosters, consolationNum, selected;
 
-    let label = '';
+	let label = '';
 
-    const setLabel = (l) => {
-        if(matchCol.length > 1) {
-            switch (playoffLength - ix) {
-                case 1:
-                    if(losers) {
-                        label = 'Toilet Bowl'
-                    } else {
-                        label = 'Championship Match'
-                    }
-                    break;
-                case 2:
-                    label = 'Semifinals'
-                    break;
-                case 3:
-                    label = 'Quarterfinals'
-                    break;
-                case 3:
-                    label = 'Eighth-Finals'
-                    break;
-            
-                default:
-                    break;
-            }
-        } else {
-            // If it's not a consolation match the only single matchup is the final
-            if(!consolation) {
-                if(losers) {
-                    label = 'Toilet Bowl'
-                } else {
-                    label = 'Championship Match'
-                }
-                return;
-            }
-            if(losers) {
-                label = nThPlace(numRosters - (2 * (consolationNum + 1)));
-            } else {
-                label = nThPlace(1 + (2 * (consolationNum + 1)));
-            }
-        }
-    }
+	const setLabel = (l) => {
+		if (!matchCol) return;
+		if (matchCol.length > 1) {
+			switch (playoffLength - ix) {
+				case 1:
+					label = losers ? 'Toilet Bowl' : 'Championship Match';
+					break;
+				case 2:
+					label = 'Semifinals';
+					break;
+				case 3:
+					label = 'Quarterfinals';
+					break;
+				case 4:
+					label = 'Eighth-Finals';
+					break;
+				default:
+					label = `Round ${ix + 1}`;
+					break;
+			}
+		} else {
+			if (!consolation) {
+				label = losers ? 'Toilet Bowl' : 'Championship Match';
+				return;
+			}
+			if (losers) {
+				label = nThPlace(numRosters - (2 * (consolationNum + 1)));
+			} else {
+				label = nThPlace(1 + (2 * (consolationNum + 1)));
+			}
+		}
+	};
 
-    const nThPlace = (num) => {
-        let end = 'th';
-        switch (num % 10) {
-            case 3:
-                end = 'rd'
-                break;
-            case 2:
-                end = 'nd'
-                break;
-            case 1:
-                end = 'st'
-                break;
-            default:
-                break;
-        }
-        return `${num}${end} Place`
-    }
+	const nThPlace = (num) => {
+		let end = 'th';
+		switch (num % 10) {
+			case 3:
+				if (num % 100 !== 13) end = 'rd';
+				break;
+			case 2:
+				if (num % 100 !== 12) end = 'nd';
+				break;
+			case 1:
+				if (num % 100 !== 11) end = 'st';
+				break;
+			default:
+				break;
+		}
+		return `${num}${end} Place`;
+	};
 
-    $: setLabel(losers)
+	$: setLabel(losers);
 
-    let anchors = {};
-    let drawBracket = false;
-    const setDrawBracket = (col) => {
-        if(col.length % 2 == 0) {
-            drawBracket = true;
-        } else {
-            drawBracket = false;
-        }
-    }
-    $: setDrawBracket(matchCol)
+	let elementNode;
+	let matchNodes = [];
+	let connectorLines = [];
 
-    const duos = matchCol.length / 2;
-    for(let i = 0; i < duos; i++) {
-        anchors[i] = {
-            t: null,
-            b: null,
-            yTop: null,
-            yBottom: null,
-            yMiddle: null,
-            xLeft: null,
-            xMiddle: null,
-            xRight: null,
-        }
-    }
+	const updateConnectors = () => {
+		if (!elementNode || !Array.isArray(matchCol) || matchCol.length < 2) {
+			connectorLines = [];
+			return;
+		}
 
-    const getPlayoffName = (manager, bye, season) => {
-        if(bye && !manager) {
-            return 'BYE';
-        }
-        if(!manager) {
-            return '';
-        }
-        return getTeamNameFromTeamManagers(leagueTeamManagers, manager, season);
-    }
+		const lines = [];
+		const containerRect = elementNode.getBoundingClientRect();
 
-    const calculatePoints = (allPoints) => {
-        let totalPoints = 0;
-        for(const k in allPoints) {
-            const points = allPoints[k];
-            if(!points) break;
-            for(const point of points) {
-                totalPoints += point;
-            }
-        }
-        return round(totalPoints)
-    }
+		const nextColumnEl = elementNode.nextElementSibling;
+		let targetX = null;
 
-    const calculatePotentialPoints = (startersWeeks, ix, p) => {
-        if(!startersWeeks) return 0;
-        let totalPoints = 0;
-        
-        for(const k in startersWeeks) {
-            const starters = startersWeeks[k];
-            if(!starters) break;
+		if (nextColumnEl) {
+			const nextCard = nextColumnEl.querySelector('.match-card');
+			if (nextCard) {
+				targetX = nextCard.getBoundingClientRect().left - containerRect.left;
+			}
+		}
 
-            const i = ix + k -1;
-            for(const starter of starters) {
-                totalPoints += parseFloat(players[starter]?.wi && players[starter].wi[playoffsStart - i]?.p ? players[starter].wi[playoffsStart - i].p : 0);
-            }
-        }
-        return round(totalPoints);
-    }
+		const cardRect = matchNodes[0]?.getBoundingClientRect();
+		const fallbackEnd = cardRect ? (cardRect.right - containerRect.left + 60) : 0;
 
-    let el;
+		for (let i = 0; i < matchCol.length; i += 2) {
+			const topMatch = matchNodes[i];
+			const bottomMatch = matchNodes[i + 1];
 
-    let labelY = 0;
+			if (topMatch && bottomMatch) {
+				const topRect = topMatch.getBoundingClientRect();
+				const bottomRect = bottomMatch.getBoundingClientRect();
 
-    const resize = () => {
-        const colTop = el?.getBoundingClientRect()?.top || 0;
-        const colLeft = el?.getBoundingClientRect()?.left || 0;
-        const colRight = el?.getBoundingClientRect()?.right || 0;
-        const colWidth = colRight - colLeft;
-        for(const key in anchors) {
-            const tTop = anchors[key]?.t?.getBoundingClientRect()?.top || 0;
-            const tBottom = anchors[key]?.t?.getBoundingClientRect()?.bottom || 0;
-            if(labelY == 0 && tTop > 0) {
-                labelY = tTop - colTop - 25;
-            };
+				const xStart = topRect.right - containerRect.left;
+				const xEnd = targetX !== null ? targetX : fallbackEnd;
+				const xMid = xStart + (xEnd - xStart) / 2;
 
-            const tLeft= anchors[key]?.t?.getBoundingClientRect()?.left || 0;
-            const tRight= anchors[key]?.t?.getBoundingClientRect()?.right || 0;
+				const yTop = (topRect.top + topRect.bottom) / 2 - containerRect.top;
+				const yBottom = (bottomRect.top + bottomRect.bottom) / 2 - containerRect.top;
+				const yMid = (yTop + yBottom) / 2;
 
-            const bTop = anchors[key]?.b?.getBoundingClientRect()?.top || 0;
-            const bBottom = anchors[key]?.b?.getBoundingClientRect()?.bottom || 0;
-            
-            anchors[key].yTop = (tBottom + tTop) / 2 - colTop;
-            anchors[key].yBottom = (bBottom + bTop) / 2 - colTop;
-            anchors[key].yMiddle = (anchors[key].yTop + anchors[key].yBottom) / 2;
+				lines.push({ xStart, xMid, xEnd, yTop, yBottom, yMid });
+			}
+		}
+		connectorLines = lines;
+	};
 
-            anchors[key].xLeft = (tRight + tLeft) / 2 - (colWidth * ix);
-            anchors[key].xMiddle = anchors[key].xLeft + (colWidth / 2);
-            anchors[key].xRight = anchors[key].xLeft + colWidth;
-        }
-    }
+	let innerWidth, innerHeight;
+	$: if (elementNode || innerWidth || innerHeight || matchCol) {
+		setTimeout(updateConnectors, 50);
+	}
 
-    $: resize(innerWidth);
-    
-    let innerWidth;
+	const getPair = (m) => {
+		if (!m) return [{ roster_id: null }, { roster_id: null }];
+		if (Array.isArray(m)) return m;
+		return [
+			{ roster_id: m.t1 || m.home || m.roster_id, points: m.t1_points || m.points, starters: m.t1_starters || m.starters, m: m.m, r: m.r },
+			{ roster_id: m.t2 || m.away, points: m.t2_points, starters: m.t2_starters, m: m.m, r: m.r }
+		];
+	};
 
-    const changeSelection = (m, opponent) => {
-        if(m == selected || !opponent) return;
-        selected = m;
-    }
+	const isBye = (m) => {
+		if (!m) return false;
+		if (Array.isArray(m)) return m.bye || m[0]?.bye || false;
+		return m.bye || false;
+	};
 
+	const getMatchId = (m) => {
+		if (!m) return null;
+		if (Array.isArray(m)) return m[0]?.m || null;
+		return m.m || null;
+	};
+
+	const getPlayoffName = (manager, bye, season) => {
+		if (bye && !manager) return 'BYE';
+		if (!manager) return 'TBD';
+		return getTeamNameFromTeamManagers(leagueTeamManagers, manager, season);
+	};
+
+	const calculatePoints = (allPoints) => {
+		if (!allPoints) return 0;
+		if (typeof allPoints === 'number') return round(allPoints);
+		let totalPoints = 0;
+		for (const k in allPoints) {
+			const points = allPoints[k];
+			if (!points) continue;
+			if (typeof points === 'number') {
+				totalPoints += points;
+			} else if (Array.isArray(points)) {
+				for (const point of points) {
+					totalPoints += point;
+				}
+			}
+		}
+		return round(totalPoints);
+	};
+
+	const calculatePotentialPoints = (startersWeeks, roundIx, p) => {
+		if (!startersWeeks || !p) return 0;
+		let totalPoints = 0;
+
+		if (Array.isArray(startersWeeks)) {
+			for (const starter of startersWeeks) {
+				totalPoints += parseFloat(p[starter]?.wi && p[starter].wi[playoffsStart - roundIx]?.p ? p[starter].wi[playoffsStart - roundIx].p : 0);
+			}
+			return round(totalPoints);
+		}
+
+		for (const k in startersWeeks) {
+			const starters = startersWeeks[k];
+			if (!starters || !Array.isArray(starters)) continue;
+			const i = roundIx + parseInt(k) - 1;
+			for (const starter of starters) {
+				totalPoints += parseFloat(p[starter]?.wi && p[starter].wi[playoffsStart - i]?.p ? p[starter].wi[playoffsStart - i].p : 0);
+			}
+		}
+		return round(totalPoints);
+	};
+
+	const changeSelection = (matchups) => {
+		const mId = getMatchId(matchups);
+		if (!mId || mId == selected) return;
+		selected = mId;
+	};
 </script>
 
-<svelte:window bind:innerWidth={innerWidth} />
+<svelte:window bind:innerWidth bind:innerHeight on:resize={updateConnectors} />
 
-<style>
-    .bracketColumn {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-items: center;
-        flex-grow: 1;
-    }
+<div class="relative flex flex-col justify-around items-center flex-grow font-sans py-8 min-h-[320px]" bind:this={elementNode}>
+	{#if matchCol && matchCol.length}
+		<p class="absolute top-0 text-center text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-400/90 whitespace-nowrap">
+			{label}
+		</p>
+	{/if}
 
-    .label {
-        position: absolute;
-        text-align: center;
-        margin: 0;
-    }
+	<!-- BACKGROUND CONNECTOR LINES -->
+	{#if connectorLines.length > 0}
+		<svg class="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible">
+			{#each connectorLines as line}
+				<line x1={line.xStart} y1={line.yTop} x2={line.xMid} y2={line.yTop} stroke="#38bdf8" stroke-width="2" opacity="0.7" />
+				<line x1={line.xStart} y1={line.yBottom} x2={line.xMid} y2={line.yBottom} stroke="#38bdf8" stroke-width="2" opacity="0.7" />
+				<line x1={line.xMid} y1={line.yTop} x2={line.xMid} y2={line.yBottom} stroke="#38bdf8" stroke-width="2" opacity="0.7" />
+				<line x1={line.xMid} y1={line.yMid} x2={line.xEnd} y2={line.yMid} stroke="#38bdf8" stroke-width="2" opacity="0.7" />
+			{/each}
+		</svg>
+	{/if}
 
-    .match {
-        width: 280px;
-        border: 1px solid var(--ccc);
-        background-color: var(--bracketMatch);
-        border-radius: 10px;
-        margin: 2em 1em;
-        z-index: 2;
-    }
+	<!-- MATCH CARDS -->
+	{#each matchCol || [] as matchups, inx}
+		{@const pair = getPair(matchups)}
+		{@const matchId = getMatchId(matchups)}
+		{@const byeMatch = isBye(matchups)}
 
-    .selected {
-        background-color: var(--matchupSelected);
-        box-shadow: 0 0 8px 6px var(--matchupSelected);
-    }
+		<button 
+			type="button"
+			bind:this={matchNodes[inx]}
+			class="match-card w-[140px] sm:w-[180px] md:w-[220px] lg:w-[250px] my-4 mx-4 sm:mx-6 z-10 rounded-xl border transition-all duration-300 backdrop-blur-md overflow-hidden relative text-left p-0
+			{matchId == selected 
+				? 'bg-slate-900/95 border-blue-500 shadow-[0_0_18px_rgba(59,130,246,0.4)] ring-1 ring-blue-500/50' 
+				: 'bg-slate-950/80 border-slate-800/80 hover:border-slate-700/80 shadow-lg'
+			}
+			{matchId ? 'cursor-pointer hover:scale-[1.02]' : ''}"
+			on:click={() => changeSelection(matchups)}
+		>
+			{#each pair as matchup, idx}
+				<div class="flex flex-col p-2 sm:p-2.5 {idx === 0 ? 'border-b border-slate-800/60' : ''}">
+					<div class="flex items-center justify-between w-full">
+						<div class="flex items-center gap-1.5 sm:gap-2 min-w-0 grow">
+							{#if matchup.roster_id || (!byeMatch && !matchup.roster_id)}
+								<img 
+									class="h-6 w-6 sm:h-7 sm:w-7 rounded-full border border-slate-700/80 object-cover shrink-0 bg-slate-800
+									{!byeMatch && !matchup.roster_id ? 'opacity-30 border-none': ''}" 
+									src={getAvatarFromTeamManagers(leagueTeamManagers, matchup.roster_id, leagueTeamManagers?.currentYear)} 
+									alt="team avatar" 
+								/>
+							{/if}
 
-    .clickable {
-        cursor: pointer;
-    }
+							<div class="text-xs sm:text-sm font-semibold truncate text-slate-200 {byeMatch && !matchup.roster_id ? 'text-slate-500 italic font-normal': ''}">
+								{getPlayoffName(matchup.roster_id, byeMatch, leagueTeamManagers?.currentYear)}
+							</div>
+						</div>
 
-    .manager {
-        flex-direction: column;
-        margin: 1em 0.5em;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-    }
-
-    .avatarPointsBlock {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-    }
-
-    .name {
-        margin-top: 0.3em;
-        font-size: 1em;
-        line-height: 1.1em;
-        flex-grow: 1;
-        word-break: break-word;
-        color: var(--g444);
-        width: 100%;
-    }
-
-    .bye {
-        color: #999;
-        font-style: italic;
-    }
-
-    .avatar {
-        vertical-align: middle;
-        border-radius: 50%;
-        height: 25px;
-        width: 25px;
-        margin: 0;
-        border: 0.25px solid #777;
-        background-color: #eee;
-    }
-
-    .points {
-        line-height: 1.1em;
-        font-size: 0.85em;
-        padding-left: 1em;
-        color: var(--g333);
-        text-align: right;
-    }
-
-    .projectedPoints {
-        font-size: 0.8em;
-        color: var(--g999);
-    }
-
-    /* SVG styling */
-
-	.lineParent {
-        top: 0;
-        left: 0;
-        position: absolute;
-		overflow: visible;
-		width: 1px;
-		height: 1px;
-		pointer-events: none;
-	}
-
-	.line{
-        top: 0;
-        left: 0;
-		position: absolute;
-		z-index: 1;
-	}
-
-    /* media queries */
-	@media (max-width: 1000px) {
-        .match {
-            width: 220px;
-        }
-	}
-
-	@media (max-width: 800px) {
-        .match {
-            width: 180px;
-        }
-	}
-
-    @media (max-width: 610px) {
-        .match {
-            width: 130px;
-            font-size: 0.9em;
-        }
-
-        .avatar {
-            height: 20px;
-            width: 20px;
-        }
-    }
-
-    @media (max-width: 500px) {
-        .match {
-            width: 110px;
-            font-size: 0.8em;
-        }
-    }
-
-    @media (max-width: 410px) {
-        .match {
-            width: 80px;
-            font-size: 0.6em;
-        }
-    }
-
-    .avatarBye {
-        opacity: 0.3;
-        border: none;
-    }
-
-    .spacer {
-        background: none;
-        border: none;
-    }
-</style>
-
-<div class="bracketColumn" bind:this={el}>
-    {#if matchCol.length}
-        <p class="label" style="top: {labelY}px;">{label}</p>
-    {/if}
-    <!-- If we need to draw a bracket, include anchor points and include svgs to draw the  bracket -->
-    {#each matchCol as matchups, inx}
-        <div class="match{matchups[0].m == selected ? ' selected' : ''}{matchups[0].m && matchups[1].roster_id ? ' clickable' : ''}" bind:this={anchors[Math.floor(inx / 2)][inx % 2 == 0 ? 't' : 'b']} onclick={() => {changeSelection(matchups[0].m, matchups[1].roster_id)}}>
-            {#each matchups as matchup}
-                <div class="manager">
-                    <div class="avatarPointsBlock">
-                        {#if !matchup.roster_id}
-                            <span />
-                        {/if}
-                        {#if matchup.roster_id || (!matchups.bye && !matchup.roster_id)}
-                            <img class="avatar{!matchups.bye && !matchup.roster_id ? ' avatarBye': ''}" src={getAvatarFromTeamManagers(leagueTeamManagers, matchup.roster_id, leagueTeamManagers.currentYear)} alt="team avatar" />
-                        {/if}
-                        {#if matchup.roster_id}
-                            <div class="points">
-                                <div class="actualPoints">{calculatePoints(matchup.points)}</div>
-                                <div class="projectedPoints">{calculatePotentialPoints(matchup.starters, ix, players)}</div>
-                            </div>
-                        {:else}
-                            <span />
-                        {/if}
-                    </div>
-                    <div class="name{matchups.bye && !matchup.roster_id ? ' bye': ''}">{getPlayoffName(matchup.roster_id, matchups.bye, leagueTeamManagers.currentYear)}</div>
-                </div>
-            {/each}
-        </div>
-        {#if drawBracket && inx % 2 == 0}
-            <!-- Only draw the bracket once for each pair -->
-            <svg class="lineParent">
-                <!-- top line of bracket -->
-                <line stroke-width="2px" stroke="#ccc"  x1="{anchors[Math.floor(inx / 2)].xLeft}" y1="{anchors[Math.floor(inx / 2)].yTop}" x2="{anchors[Math.floor(inx / 2)].xMiddle}" y2="{anchors[Math.floor(inx / 2)].yTop}" class="line"/>
-                <!-- vertical line of bracket -->
-                <line stroke-width="2px" stroke="#ccc"  x1="{anchors[Math.floor(inx / 2)].xMiddle}" y1="{anchors[Math.floor(inx / 2)].yTop}" x2="{anchors[Math.floor(inx / 2)].xMiddle}" y2="{anchors[Math.floor(inx / 2)].yBottom}" class="line"/>
-                <!-- right line of bracket -->
-                <line stroke-width="2px" stroke="#ccc"  x1="{anchors[Math.floor(inx / 2)].xMiddle}" y1="{anchors[Math.floor(inx / 2)].yMiddle}" x2="{anchors[Math.floor(inx / 2)].xRight}" y2="{anchors[Math.floor(inx / 2)].yMiddle}" class="line"/>
-                <!-- bottom line of bracket -->
-                <line stroke-width="2px" stroke="#ccc"  x1="{anchors[Math.floor(inx / 2)].xLeft}" y1="{anchors[Math.floor(inx / 2)].yBottom}" x2="{anchors[Math.floor(inx / 2)].xMiddle}" y2="{anchors[Math.floor(inx / 2)].yBottom}" class="line"/>
-            </svg>
-        {/if}
-    {:else}
-        <div class="match spacer" />
-    {/each}
+						{#if matchup.roster_id}
+							<div class="text-right shrink-0 ml-1.5">
+								<div class="text-xs sm:text-sm font-bold text-slate-100 leading-tight">
+									{calculatePoints(matchup.points)}
+								</div>
+								<div class="text-[9px] text-slate-400/80 italic leading-tight">
+									Proj {calculatePotentialPoints(matchup.starters, ix, players)}
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+			{/each}
+		</button>
+	{:else}
+		<div class="w-[140px] sm:w-[180px] md:w-[220px] lg:w-[250px] my-4 mx-4 sm:mx-6 h-20"></div>
+	{/each}
 </div>

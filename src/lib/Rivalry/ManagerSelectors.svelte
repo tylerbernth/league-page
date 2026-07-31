@@ -13,144 +13,60 @@
         if(!p1 || !p2) {
             return;
         }
-        goto(`/rivalry?player_one=${p1}&player_two=${p2}`, {noscroll: true,  keepfocus: true})
+        goto(`/rivalry?player_one=${p1}&player_two=${p2}`, {noscroll: true, keepfocus: true})
     }
 
     $: analyzeRivalry(playerOne, playerTwo)
 </script>
 
-<style>
-    .selectors {
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        max-width: 900px;
-        margin: 3em auto 2em;
-    }
-    .manager {
-        text-align: center;
-    }
-    .vs {
-        display: inline-block;
-        margin: 1em 0;
-    }
-    .container {
-        display: inline-block;
-        position: relative;
-    }
-    .selectInput {
-        padding: 0.5em 2em;
-        font-size: 1.2em;
-        border-radius: 6px;
-        background-color: var(--fff);
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
-        background-image: url(/dropdown.png);
-        background-repeat: no-repeat;
-        text-align: center;
-        color: var(--g000);
-    }
-    .left {
-        border: 1px solid var(--barChartOne);
-        background-position: 100%;
-    }
-    select.left:focus {
-        outline: none;
-        border: 3px solid var(--barChartOne);
-    }
-    .right {
-        border: 1px solid var(--barChartSix);
-        background-position: 0%;
-    }
-    select.right:focus {
-        outline: none;
-        border: 3px solid var(--barChartSix);
-    }
-    select option {
-        text-align: left;
-    }
-    .avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        border: 2px solid;
-        position: absolute;
-        transform: translate(0%, -50%);
-        top: 50%;
-        background-color: var(--fff);
-    }
-    .avatarLeft {
-        border-color: var(--barChartOne);
-        border-right: none;
-        left: -18%
-    }
-    .avatarRight {
-        border-color: var(--barChartSix);
-        border-left: none;
-        right: -18%
-    }
-    @media (max-width: 650px) {
-        label {
-            font-size: 1.3em;
-        }
-        .selectInput {
-            padding: 0.3em 1.9em;
-            font-size: 1em;
-        }
-        .avatar {
-            width: 40px;
-            height: 40px;
-        }
-        .avatarLeft {
-            left: -12%
-        }
-        .avatarRight {
-            right: -12%
-        }
-    }
-    @media (max-width: 530px) {
-        .selectors {
-            flex-direction: column;
-        }
-        .avatarRight {
-            border-right: none;
-            left: -12%
-        }
-        .right {
-            background-position: 100%;
-        }
-    }
-</style>
-
-<div class="selectors">
+<div class="mx-auto my-12 flex max-w-4xl flex-col items-center justify-evenly gap-6 sm:flex-row">
     <!-- manager 1 -->
-    <div class="manager">
-        <div class="container">
-            <select class="selectInput left" id="managerOne" name="managerOne" bind:value={playerOne}>
-                <option value={null}>Select a manager</option>
+    <div class="text-center">
+        <div class="relative inline-block">
+            <select 
+                class="w-full appearance-none rounded-xl border border-indigo-500/30 bg-slate-900/80 px-6 py-3 text-center text-base font-medium text-slate-100 shadow-lg backdrop-blur-md focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 sm:text-lg" 
+                id="managerOne" 
+                name="managerOne" 
+                bind:value={playerOne}
+            >
+                <option value={null} class="bg-slate-900 text-slate-400">Select a manager</option>
                 {#each usersOne as user}
-                    <option value={user}>{leagueTeamManagers.users[user].display_name}</option>
+                    <option value={user} class="bg-slate-900 text-slate-100">{leagueTeamManagers.users[user].display_name}</option>
                 {/each}
             </select>
             {#if playerOne}
-                <img class="avatar avatarLeft" src="{getTeamData(leagueTeamManagers.users, playerOne).avatar}"  alt="manager one avatar"/>
+                <img 
+                    class="absolute top-1/2 -left-12 h-12 w-12 -translate-y-1/2 rounded-full border-2 border-indigo-500 bg-slate-900 object-cover shadow-md sm:-left-16 sm:h-14 sm:w-14" 
+                    src="{getTeamData(leagueTeamManagers.users, playerOne).avatar}" 
+                    alt="manager one avatar"
+                />
             {/if}
         </div>
     </div>
+
     <!-- vs -->
-    <span class="vs">vs</span>
+    <span class="my-2 text-xl font-bold tracking-wider text-slate-500">VS</span>
+
     <!-- manager 2 -->
-    <div class="manager">
-        <div class="container">
-            <select class="selectInput right" id="managerOne" name="managerOne" bind:value={playerTwo}>
-                <option value={null}>Select a manager</option>
+    <div class="text-center">
+        <div class="relative inline-block">
+            <select 
+                class="w-full appearance-none rounded-xl border border-cyan-500/30 bg-slate-900/80 px-6 py-3 text-center text-base font-medium text-slate-100 shadow-lg backdrop-blur-md focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 sm:text-lg" 
+                id="managerTwo" 
+                name="managerTwo" 
+                bind:value={playerTwo}
+            >
+                <option value={null} class="bg-slate-900 text-slate-400">Select a manager</option>
                 {#each usersTwo as user}
-                    <option value={user}>{leagueTeamManagers.users[user].display_name}</option>
+                    <option value={user} class="bg-slate-900 text-slate-100">{leagueTeamManagers.users[user].display_name}</option>
                 {/each}
             </select>
             {#if playerTwo}
-                <img class="avatar avatarRight" src="{getTeamData(leagueTeamManagers.users, playerTwo).avatar}"  alt="manager two avatar"/>
+                <img 
+                    class="absolute top-1/2 -right-12 h-12 w-12 -translate-y-1/2 rounded-full border-2 border-cyan-500 bg-slate-900 object-cover shadow-md sm:-right-16 sm:h-14 sm:w-14" 
+                    src="{getTeamData(leagueTeamManagers.users, playerTwo).avatar}" 
+                    alt="manager two avatar"
+                />
             {/if}
         </div>
     </div>

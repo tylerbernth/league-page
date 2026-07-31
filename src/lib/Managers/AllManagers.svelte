@@ -1,6 +1,6 @@
 <script>
     import { leagueName } from '$lib/utils/helper';
-    import ManagerRow from './ManagerRow.svelte'
+    import ManagerRow from './ManagerRow.svelte';
 
     export let managers, leagueTeamManagers;
 
@@ -9,41 +9,13 @@
 
 <svelte:window bind:innerWidth={innerWidth} />
 
-<style>
-    .managerContainer {
-        width: 100%;
-        margin: 2em 0 5em;
-    }
-
-    .managerConstrained {
-        width: 97%;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    h2 {
-        text-align: center;
-        font-size: 2.8em;
-        margin: 2em 0 1.5em;
-        line-height: 1em;
-    }
-
-    @media (max-width: 520px) {
-        h2 {
-            text-align: center;
-            font-size: 2em;
-            margin: 1.5em 0 1em;
-            line-height: 1em;
-        }
-    }
-</style>
-
-<div class="managerContainer">
-    <h2>{leagueName} Managers</h2>
-    <div class="managerConstrained">
+<div class="my-8 mb-20 w-full">
+    <h2 class="my-6 text-center text-3xl font-extrabold tracking-tight text-slate-100 sm:my-8 sm:text-4xl md:text-5xl">
+        {leagueName} Managers
+    </h2>
+    <div class="mx-auto w-[97%] max-w-3xl">
         {#each managers as manager, key}
             <ManagerRow {manager} {leagueTeamManagers} {key} />
         {/each}
     </div>
-
 </div>

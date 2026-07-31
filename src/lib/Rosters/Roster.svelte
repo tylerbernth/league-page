@@ -1,8 +1,6 @@
 <script>
 	import { gotoManager } from '$lib/utils/helper';
-  	import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
-	import { Icon } from '@smui/icon-button';
-	import RosterRow from "./RosterRow.svelte"
+	import RosterRow from "./RosterRow.svelte";
 	
 	export let roster, leagueTeamManagers, startersAndReserve, players, rosterPositions, division, expanded;
 
@@ -18,7 +16,7 @@
 				continue;
 			}
 			let player = {};
-			let slot = "BN"
+			let slot = "BN";
 			if(startingPlayers) {
 				slot = rosterPositions[i] == "WRRB_FLEX" ? "WR/RB" : rosterPositions[i];
 			}
@@ -30,7 +28,7 @@
 					team: null,
 					avatar: null,
 					slot: slot
-				}
+				};
 				i++;
 				digestedRoster.push(player);
 				continue;
@@ -38,37 +36,27 @@
 
 			let injury = null;
 			switch (passedPlayers[singlePlayer].is) {
-				case "Questionable":
-					injury = "Q";
-					break;
-				case "Out":
-					injury = "OUT";
-					break;
-				case "PUP":
-					injury = "PUP";
-					break;
-				case "IR":
-					injury = "IR";
-					break;
-			
-				default:
-					break;
+				case "Questionable": injury = "Q"; break;
+				case "Out": injury = "OUT"; break;
+				case "PUP": injury = "PUP"; break;
+				case "IR": injury = "IR"; break;
+				default: break;
 			}
 			player = {
 				name: `${passedPlayers[singlePlayer].fn} ${passedPlayers[singlePlayer].ln}${injury ? `<span class="injury ${injury}">${injury}</span>` : ""}`,
-                nickname: roster.metadata && roster.metadata[`p_nick_${singlePlayer}`] ? roster.metadata[`p_nick_${singlePlayer}`] : null,
+				nickname: roster.metadata && roster.metadata[`p_nick_${singlePlayer}`] ? roster.metadata[`p_nick_${singlePlayer}`] : null,
 				poss: passedPlayers[singlePlayer].pos,
 				team: passedPlayers[singlePlayer].t,
 				avatar: passedPlayers[singlePlayer].pos == "DEF" ? `background-image: url(https://sleepercdn.com/images/team_logos/nfl/${singlePlayer.toLowerCase()}.png)` : `background-image: url(https://sleepercdn.com/content/nfl/players/thumb/${singlePlayer}.jpg), url(https://sleepercdn.com/images/v2/icons/player_default.webp)`,
 				slot: slot
-			}
+			};
 			i++;
 			digestedRoster.push(player);
 		}
 		i = 0;
 
 		return digestedRoster;
-	}
+	};
 
 	$: finalStarters = digestData(players, roster.starters, true);
 	let finalBench = [];
@@ -82,231 +70,102 @@
 
 	const buildRecord = (newRoster) => {
 		const innerRecord = [];
-		// Check to make sure that record exists
 		if(!newRoster.metadata || !newRoster.metadata.record) return innerRecord;
-		// simplify record
 		for (const c of newRoster.metadata.record) {
 			switch (c) {
-				case "W":
-					innerRecord.push("green");
-					break;
-				case "L":
-					innerRecord.push("red");
-					break;
-			
-				default:
-					innerRecord.push("gray");
-					break;
+				case "W": innerRecord.push("bg-emerald-500"); break;
+				case "L": innerRecord.push("bg-rose-500"); break;
+				default: innerRecord.push("bg-slate-600"); break;
 			}
 		}
 		return innerRecord;
-	}
+	};
 
 	$: record = buildRecord(roster);
 
-	let selected = "0px";
-	let status = "minimized";
+	let isExpanded = false;
+	$: isExpanded = expanded;
+
 	const toggleSelected = () => {
-		selected = selected == "0px" ? calcHeight() + "px" : "0px";
-		status = status == "minimized" ? "expanded" : "minimized";
-	}
-
-	let innerWidth;
-
-	const calcHeight = () => {
-		const multiplier = 52;
-		const benchLength = finalBench.length * multiplier + 53;
-		let irLength = 0;
-		if(finalIR) {
-			irLength = finalIR.length * multiplier + 52;
-		}
-		return benchLength + irLength;
-	}
-
-	$: {
-		selected = expanded ? calcHeight() + "px" : "0px";
-		status = expanded ? "expanded" : "minimized";
-	}
-
+		isExpanded = !isExpanded;
+	};
 </script>
 
-<svelte:window bind:innerWidth={innerWidth} />
+<div class="w-full max-w-[380px] flex-col rounded-2xl border border-slate-800 bg-slate-900/90 shadow-xl backdrop-blur-md transition-all duration-300 hover:border-slate-700">
+	<!-- Team Header Card -->
+	<div 
+		role="button"
+		tabindex="0"
+		onclick={() => gotoManager({leagueTeamManagers, rosterID: roster.roster_id})}
+		onkeydown={(e) => e.key === 'Enter' && gotoManager({leagueTeamManagers, rosterID: roster.roster_id})}
+		class="group flex cursor-pointer flex-col items-center rounded-t-2xl border-b border-slate-800 bg-slate-950/40 p-4 transition-colors hover:bg-slate-800/30"
+	>
+		<div class="flex items-center gap-3">
+			<img 
+				alt="team avatar" 
+				class="h-11 w-11 rounded-full border border-slate-700/80 shadow-md group-hover:scale-105 transition-transform" 
+				src="{team ? team.avatar : 'https://sleepercdn.com/images/v2/icons/player_default.webp'}" 
+			/>
+			<h3 class="text-base sm:text-lg font-extrabold tracking-tight text-slate-100 group-hover:text-indigo-400 transition-colors">
+				{team?.name ? team.name : 'No Manager'}
+			</h3>
+		</div>
 
-<style>
-	h5 {
-    text-align: center;
-		margin: 0.2em auto;
-	}
-	
-	.teamAvatar {
-		vertical-align: middle;
-		border-radius: 50%;
-		height: 40px;
-		margin-right: 15px;
-		border: 0.25px solid #777;
-	}
-
-	.team {
-		margin: 4px 10px 10px;
-	}
-
-	:global(.clickable) {
-		cursor: pointer;
-	}
-
-	:global(.teamInner) {
-		box-shadow: 0px 3px 3px -2px var(--boxShadowOne), 0px 3px 4px 0px var(--boxShadowTwo), 0px 1px 8px 0px var(--boxShadowThree);
-		display: block;
-	    margin: 0 auto;
-	}
-
-	.rosterBench{
-		overflow: hidden;
-		width: 100%;
-		display: block;
-		transition: max-height 0.7s ease-in-out;
-	}
-
-	:global(.r_1) {
-		text-align: center;
-		background-color: var(--r1);
-	}
-
-	:global(.r_2) {
-		text-align: center;
-		background-color: var(--r2);
-	}
-
-	:global(.r_3) {
-		text-align: center;
-		background-color: var(--r3);
-	}
-
-	.record {
-		width: 100%;
-		margin-bottom: 5px;
-		display: flex;
-		justify-content: space-around;
-	}
-
-	.result {
-		width: 11px;
-	}
-
-	h3 {
-		font-size: 1.5em;
-		font-weight: 500;
-		margin: 12px 0;
-	}
-
-	h5 {
-		font-size: 1.2em;
-		text-align: center;
-	}
-
-	@media (max-width: 500px) {
-		.team {
-			font-size: 0.9em;
-		}
-		.result {
-			width: 9px;
-		}
-
-		h3 {
-			font-size: 1.3em;
-			margin: 3px 0;
-		}
-
-		h5 {
-			font-size: 1.1em;
-		}
-	}
-
-	@media (max-width: 340px) {
-		h3 {
-			font-size: 1.1em;
-			margin: 6px 0;
-		}
-
-		h5 {
-			font-size: 1em;
-		}
-	}
-
-	@media (max-width: 400px) {
-		.team {
-			margin: 4px auto 10px;
-		}
-	}
-
-	:global(.icon) {
-		vertical-align: middle;
-	}
-
-	.italic {
-		color: #aaa;
-		font-style: italic;
-	}
-
-	:global(.interactive) {
-		vertical-align: middle;
-		cursor: pointer;
-	}
-
-	:global(.bench) {
-		background-color: var(--ir);
-	}
-</style>
-
-<div class="team">
-	<DataTable class="teamInner" table$aria-label="Team Name" style="width: {innerWidth * 0.95 > 380 ? 380 : innerWidth * 0.95}px;" >
-		<Head> <!-- Team name  -->
-			<Row>
-				<Cell colspan=4 class="r_{division} clickable">
-					<h3 onclick={() => gotoManager({leagueTeamManagers, rosterID: roster.roster_id})}>
-						<img alt="team avatar" class="teamAvatar" src="{team ? team.avatar : 'https://sleepercdn.com/images/v2/icons/player_default.webp'}" />
-						{team?.name ? team.name : 'No Manager'}
-					</h3>
-
-					<div class="record">
-						{#each record as result}
-							<img alt="match result" class="result" src="/{result}.png" />
-						{/each}
-					</div>
-				</Cell>
-			</Row>
-		</Head>
-		<Body>
-			<!-- 	Starters	 -->
-			{#each finalStarters as starter}
-				<RosterRow player={starter} />
-			{/each}
-			<Row class="interactive" onclick={toggleSelected}>
-				<Cell colspan=4 class="{division}"><h5><Icon class="material-icons icon">king_bed</Icon> Bench <span class="italic">({status})</span></h5></Cell>
-			</Row>
-		</Body>
-	</DataTable>
-	<div class="rosterBench" style="max-height: {selected}">
-		<DataTable class="teamInner" style="width: 380px" >
-			<Body class="bench">
-				<!-- 	Bench	 -->
-				{#each finalBench as bench}
-					<RosterRow player={bench} />
+		<!-- Record Dots Bar -->
+		{#if record.length > 0}
+			<div class="mt-3 flex items-center gap-1.5">
+				{#each record as bgClass}
+					<span class="h-2.5 w-2.5 rounded-full {bgClass} shadow-sm"></span>
 				{/each}
-				
-				<!-- 	IR	 -->
-				{#if finalIR}
-					<Row>
-					<Cell colspan=4 ><h5><Icon class="material-icons icon">healing</Icon> Injured Reserve</h5></Cell>
-					</Row>
-					{#each finalIR as ir}
-						<RosterRow player={ir} />
-					{/each}
-				{/if}
-				<Row class="interactive" onclick={toggleSelected}>
-					<Cell colspan=4 class="{division}"><h5><Icon class="material-icons icon">close_fullscreen</Icon>Close Bench</h5></Cell>
-				</Row>
-			</Body>
-		</DataTable>
+			</div>
+		{/if}
 	</div>
+
+	<!-- Starters Rows -->
+	<div class="divide-y divide-slate-800/40">
+		{#each finalStarters as starter}
+			<RosterRow player={starter} />
+		{/each}
+	</div>
+
+	<!-- Bench Toggle Button -->
+	<button
+		type="button"
+		onclick={toggleSelected}
+		class="flex w-full items-center justify-center gap-2 border-t border-slate-800 bg-slate-950/60 py-2.5 text-xs font-bold text-indigo-400 hover:bg-slate-950 hover:text-indigo-300 transition-all"
+	>
+		<svg class="h-4 w-4 transition-transform duration-300 {isExpanded ? 'rotate-180' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+		</svg>
+		<span>Bench ({isExpanded ? 'Expanded' : 'Minimized'})</span>
+	</button>
+
+	<!-- Expandable Bench Container -->
+	{#if isExpanded}
+		<div class="border-t border-slate-800/80 bg-slate-950/30 divide-y divide-slate-800/40">
+			<!-- Bench Players -->
+			{#each finalBench as bench}
+				<RosterRow player={bench} />
+			{/each}
+			
+			<!-- IR Section -->
+			{#if finalIR}
+				<div class="bg-rose-950/20 px-4 py-1.5 text-center text-xs font-semibold text-rose-400 border-y border-rose-900/30">
+					🏥 Injured Reserve
+				</div>
+				{#each finalIR as ir}
+					<RosterRow player={ir} />
+				{/each}
+			{/if}
+
+			<!-- Bottom Close Toggle -->
+			<button
+				type="button"
+				onclick={toggleSelected}
+				class="flex w-full items-center justify-center gap-2 rounded-b-2xl bg-slate-950/80 py-2.5 text-xs font-bold text-slate-400 hover:text-slate-200 transition-colors"
+			>
+				<span>Close Bench</span>
+			</button>
+		</div>
+	{/if}
 </div>

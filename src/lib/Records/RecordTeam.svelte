@@ -18,56 +18,34 @@
 		margin-right: 15px;
 		border: 0.25px solid #777;
 	}
-
-    .recordTeam {
-        display: flex;
-    }
-
-    .name {
-        margin: auto 0;
-    }
-
-    .managerNames {
-        font-size: 0.75em;
-        font-style: italic;
-        color: var(--g999);
-        max-width: 180px;
-        white-space: normal;
-        text-align: left;
-    }
-
     .compressed {
 		height: 30px;
 		margin-right: 6px;
     }
-
     @media (max-width: 405px) {
         .teamAvatar {
             height: 25px;
             margin-right: 8px;
         }
-
         .compressed {
             height: 20px;
             margin-right: 4px;
         }
     }
-
     @media (max-width: 295px) {
         .teamAvatar {
             display: none;
         }
     }
-
 </style>
 
-<div class="recordTeam">
+<div class="flex">
     {#if user}
         <img alt="team avatar" class="teamAvatar{compressed ? " compressed" : ""}" src="{`https://sleepercdn.com/avatars/thumbs/${user.avatar}`}" />
     {:else if rosterID}
         <img alt="team avatar" class="teamAvatar{compressed ? " compressed" : ""}" src="{getAvatarFromTeamManagers(leagueTeamManagers, rosterID, year)}" />
     {/if}
-    <span class="name">
+    <span class="my-auto mx-0">
         <div class="teamName">
             {#if user}
                 {user.display_name}
@@ -77,7 +55,7 @@
             {/if}
         </div>
         {#if !user}
-            <div class="managerNames">
+            <div class="text-[0.75em] italic text-[var(--g999)] max-w-[180px] whitespace-normal text-left">
                 {renderManagerNames(leagueTeamManagers, rosterID, year)}
             </div>
         {/if}

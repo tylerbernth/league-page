@@ -20,26 +20,14 @@
     }
 </script>
 
-<style>
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    h4 {
-        display: inline-block;
-        text-align: center;
-        font-size: 1.6em;
-        margin: 10px 20px;
-    }
-</style>
-
-<div class="container">
+<div class="flex items-center justify-center py-2">
     {#if length > 0}
-        <IconButton class="material-icons" onclick={() => nav("left")}>chevron_left</IconButton>
+        <IconButton class="material-icons text-slate-300 hover:text-white" onclick={() => nav("left")}>chevron_left</IconButton>
     {/if}
-    <h4>{year} Week {displayWeek}</h4>
+    <h4 class="mx-5 my-2.5 text-center text-xl font-light tracking-wide text-slate-200 sm:text-2xl">
+        {year} Week {displayWeek}
+    </h4>
     {#if length > 0}
-        <IconButton class="material-icons" onclick={() => nav("right")}>chevron_right</IconButton>
+        <IconButton class="material-icons text-slate-300 hover:text-white" onclick={() => nav("right")}>chevron_right</IconButton>
     {/if}
 </div>

@@ -1,197 +1,123 @@
 <script>
 	import LinearProgress from '@smui/linear-progress';
 	import { getNflState, leagueName, getAwards, getLeagueTeamManagers, homepageText, managers, gotoManager, enableBlog, waitForAll } from '$lib/utils/helper';
-	import { Transactions, PowerRankings, HomePost} from '$lib/components';
+	import { Transactions, PowerRankings, HomePost } from '$lib/components';
 	import { getAvatarFromTeamManagers, getTeamFromTeamManagers } from '$lib/utils/helperFunctions/universalFunctions';
 
-    const nflState = getNflState();
-    const podiumsData = getAwards();
-    const leagueTeamManagersData = getLeagueTeamManagers();
+	const nflState = getNflState();
+	const podiumsData = getAwards();
+	const leagueTeamManagersData = getLeagueTeamManagers();
 </script>
 
-<style>
-    #home {
-        display: flex;
-        flex-wrap: nowrap;
-        position: relative;
-        overflow-y: hidden;
-        z-index: 1;
-    }
+<div class="flex flex-col lg:flex-row gap-8 w-full max-w-7xl mx-auto my-4">
+	<!-- MAIN CONTENT AREA (Left Column) -->
+	<div class="flex-1 min-w-0 space-y-8">
+		<!-- Hero / Intro Card -->
+		<section class="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl">
+			<!-- Subtle glow effect -->
+			<div class="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
 
-    #main {
-        flex-grow: 1;
-        min-width: 320px;
-        margin: 0 auto;
-        padding: 60px 0;
-    }
+			<div class="relative z-10 space-y-4">
+				<h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white uppercase border-b border-slate-800 pb-3">
+					{leagueName}
+				</h1>
+				
+				<div class="prose prose-invert max-w-none text-slate-300 leading-relaxed text-sm sm:text-base">
+					{@html homepageText}
+				</div>
 
-    .text {
-        padding: 0 30px;
-        max-width: 620px;
-        margin: 0 auto;
-    }
+				<!-- Most recent Blog Post (if enabled) -->
+				{#if enableBlog}
+					<div class="pt-4 border-t border-slate-800/80">
+						<HomePost />
+					</div>
+				{/if}
+			</div>
+		</section>
 
-    .leagueData {
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        min-width: 470px;
-        max-width: 470px;
-        min-height: 100%;
-		background-color: var(--ebebeb);
-        border-left: var(--eee);
-		box-shadow: inset 8px 0px 6px -6px rgb(0 0 0 / 24%);
-    }
+		<!-- Power Rankings Section -->
+		<section class="rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-6 shadow-xl">
+			<PowerRankings />
+		</section>
+	</div>
 
-    @media (max-width: 950px) {
-        .leagueData {
-            max-width: 100%;
-            min-width: 100%;
-            width: 100%;
-		    box-shadow: none;
-        }
-        #home {
-            flex-wrap: wrap;
-        }
-    }
+	<!-- LEAGUE DATA SIDEBAR (Right Column) -->
+	<aside class="w-full lg:w-[420px] shrink-0 space-y-6">
+		<!-- NFL Season State Banner -->
+		<div class="overflow-hidden rounded-2xl bg-gradient-to-r from-blue-700 to-indigo-700 p-4 text-white shadow-lg shadow-blue-900/20">
+			{#await nflState}
+				<div class="text-center text-sm font-semibold mb-2">Retrieving NFL state...</div>
+				<LinearProgress indeterminate />
+			{:then nflStateData}
+				<div class="text-center font-bold tracking-wide uppercase text-sm sm:text-base">
+					NFL {nflStateData.season} 
+					{#if nflStateData.season_type == 'pre'}
+						Preseason
+					{:else if nflStateData.season_type == 'post'}
+						Postseason
+					{:else}
+						Season - {nflStateData.week > 0 ? `Week ${nflStateData.week}` : "Preseason"}
+					{/if}
+				</div>
+			{:catch error}
+				<div class="text-center text-xs text-red-200">Something went wrong: {error.message}</div>
+			{/await}
+		</div>
 
-    .transactions {
-        display: block;
-        width: 95%;
-        margin: 10px auto;
-    }
+		<!-- Current Champ Spotlight -->
+		<div class="relative overflow-hidden rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-xl text-center">
+			{#await waitForAll(podiumsData, leagueTeamManagersData)}
+				<p class="text-sm font-medium text-slate-400 mb-2">Retrieving awards...</p>
+				<LinearProgress indeterminate />
+			{:then [podiums, leagueTeamManagers]}
+				{#if podiums[0]}
+					<div class="inline-block px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-3">
+						👑 {podiums[0].year} Reigning Champion
+					</div>
 
-    .center {
-        text-align: center;
-    }
+					<!-- Avatar & Laurel Graphic -->
+					<div 
+						class="relative w-36 h-36 mx-auto cursor-pointer group my-2 transition-transform hover:scale-105"
+						on:click={() => {if(managers.length) gotoManager({year: podiums[0].year, leagueTeamManagers, rosterID: parseInt(podiums[0].champion)})}}
+					>
+						<!-- Champion Avatar -->
+						<img 
+							src="{getAvatarFromTeamManagers(leagueTeamManagers, podiums[0].champion, podiums[0].year)}" 
+							class="absolute left-1/2 top-[43%] h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-amber-400/80 object-cover shadow-md" 
+							alt="champion" 
+						/>
+						<!-- Laurel Overlay -->
+						<img 
+							src="/laurel.png" 
+							class="absolute left-1/2 top-1/2 h-auto w-32 -translate-x-1/2 -translate-y-1/2 pointer-events-none" 
+							alt="laurel" 
+						/>
+					</div>
 
-    h6 {
-        text-align: center;
-    }
+					<!-- Team Name Link -->
+					<button 
+						type="button"
+						class="mt-2 text-xl font-bold text-white hover:text-amber-400 transition-colors cursor-pointer block mx-auto"
+						on:click={() => gotoManager({year: podiums[0].year, leagueTeamManagers, rosterID: parseInt(podiums[0].champion)})}
+					>
+						{getTeamFromTeamManagers(leagueTeamManagers, podiums[0].champion, podiums[0].year).name}
+					</button>
+				{:else}
+					<p class="text-sm text-slate-400">No former champs found.</p>
+				{/if}
+			{:catch error}
+				<p class="text-xs text-red-400">Something went wrong: {error.message}</p>
+			{/await}
+		</div>
 
-    .homeBanner {
-        background-color: var(--blueOne);
-        color: #fff;
-        padding: 0.5em 0;
-        font-weight: 500;
-        font-size: 1.5em;
-    }
-
-    /* champ styling */
-    #currentChamp {
-        padding: 25px 0;
-		background-color: var(--f3f3f3);
-        box-shadow: 5px 0 8px var(--champShadow);
-        border-left: 1px solid var(--ddd);
-    }
-
-    #champ {
-        position: relative;
-        width: 150px;
-        height: 150px;
-        margin: 0 auto;
-        cursor: pointer;
-    }
-
-    .first {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        width: 80px;
-        height: 80px;
-        border-radius: 100%;
-        border: 1px solid #ccc;
-        left: 50%;
-        top: 43%;
-    }
-
-    .laurel {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        width: 135px;
-        height: auto;
-        left: 50%;
-        top: 50%;
-    }
-
-    h4 {
-        text-align: center;
-        font-size: 1.8em;
-        margin: 10px;
-        font-style: italic;
-    }
-
-    .label {
-        display: table;
-        text-align: center;
-        line-height: 1.1em;
-        font-size: 1.7em;
-        margin: 6px auto 10px;
-        cursor: pointer;
-    }
-    
-	:global(.curOwner) {
-		font-size: 0.75em;
-		color: #bbb;
-		font-style: italic;
-	}
-</style>
-
-<div id="home">
-    <div id="main">
-        <div class="text">
-            <h6>{leagueName}</h6>
-            <!-- homepageText contains the intro text for your league, this gets edited in /src/lib/utils/leagueInfo.js -->
-            {@html homepageText }
-            <!-- Most recent Blog Post (if enabled) -->
-            {#if enableBlog}
-                <HomePost />
-            {/if}
-        </div>
-        <PowerRankings />
-    </div>
-    
-    <div class="leagueData">
-        <div class="homeBanner">
-            {#await nflState}
-                <div class="center">Retrieving NFL state...</div>
-                <LinearProgress indeterminate />
-            {:then nflStateData}
-                <div class="center">NFL {nflStateData.season} 
-                    {#if nflStateData.season_type == 'pre'}
-                        Preseason
-                    {:else if nflStateData.season_type == 'post'}
-                        Postseason
-                    {:else}
-                        Season - {nflStateData.week > 0 ? `Week ${nflStateData.week}` : "Preseason"}
-                    {/if}
-                </div>
-            {:catch error}
-                <div class="center">Something went wrong: {error.message}</div>
-            {/await}
-        </div>
-
-        <div id="currentChamp">
-            {#await waitForAll(podiumsData, leagueTeamManagersData)}
-                <p class="center">Retrieving awards...</p>
-                <LinearProgress indeterminate />
-            {:then [podiums, leagueTeamManagers]}
-                {#if podiums[0]}
-                    <h4>{podiums[0].year} Fantasy Champ</h4>
-                    <div id="champ" onclick={() => {if(managers.length) gotoManager({year: podiums[0].year, leagueTeamManagers, rosterID: parseInt(podiums[0].champion)})}} >
-                        <img src="{getAvatarFromTeamManagers(leagueTeamManagers, podiums[0].champion, podiums[0].year)}" class="first" alt="champion" />
-                        <img src="/laurel.png" class="laurel" alt="laurel" />
-                    </div>
-                    <span class="label" onclick={() => gotoManager({year: podiums[0].year, leagueTeamManagers, rosterID: parseInt(podiums[0].champion)})} >{getTeamFromTeamManagers(leagueTeamManagers, podiums[0].champion, podiums[0].year).name}</span>
-                {:else}
-                    <p class="center">No former champs.</p>
-                {/if}
-            {:catch error}
-                <p class="center">Something went wrong: {error.message}</p>
-            {/await}
-        </div>
-
-        <div class="transactions" >
-            <Transactions />
-        </div>
-    </div>
+		<!-- Recent Transactions Section -->
+		<div class="rounded-2xl bg-slate-900 border border-slate-800 p-4 shadow-xl">
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3 px-2">
+				Recent Activity
+			</h3>
+			<div class="w-full">
+				<Transactions />
+			</div>
+		</div>
+	</aside>
 </div>

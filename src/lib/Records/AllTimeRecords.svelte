@@ -1,6 +1,6 @@
 <script>
     import {round} from '$lib/utils/helper'
-  	import RecordsAndRankings from './RecordsAndRankings.svelte';
+    import RecordsAndRankings from './RecordsAndRankings.svelte';
 
     export let key, leagueManagerRecords, leagueTeamManagers, leagueWeekHighs, leagueWeekLows, allTimeBiggestBlowouts, allTimeClosestMatchups, mostSeasonLongPoints, leastSeasonLongPoints, transactionTotals;
 
@@ -22,7 +22,6 @@
             waivers: transactionTotals.allTime[managerID].waiver,
         })
     }
-
 
     const setRankingsData = (lRR) => {
         winPercentages = [];
@@ -76,7 +75,6 @@
             })
         }
 
-
         winPercentages.sort((a, b) => b.percentage - a.percentage);
         lineupIQs.sort((a, b) => b.iq - a.iq);
         fptsHistories.sort((a, b) => b.fptsFor - a.fptsFor);
@@ -84,24 +82,26 @@
         waiversData.sort((a, b) => b.waivers - a.waivers);
     }
 
-    $:setRankingsData(leagueManagerRecords)
+    $: setRankingsData(leagueManagerRecords)
 </script>
 
-<RecordsAndRankings
-    blowouts={allTimeBiggestBlowouts}
-    closestMatchups={allTimeClosestMatchups}
-    weekRecords={leagueWeekHighs}
-    weekLows={leagueWeekLows}
-    seasonLongRecords={mostSeasonLongPoints}
-    seasonLongLows={leastSeasonLongPoints}
-    {showTies}
-    {winPercentages}
-    {fptsHistories}
-    {lineupIQs}
-    {tradesData}
-    {waiversData}
-    prefix="All-Time"
-    allTime={true}
-    {leagueTeamManagers}
-    {key}
-/>
+<div class="mx-auto w-full">
+    <RecordsAndRankings
+        blowouts={allTimeBiggestBlowouts}
+        closestMatchups={allTimeClosestMatchups}
+        weekRecords={leagueWeekHighs}
+        weekLows={leagueWeekLows}
+        seasonLongRecords={mostSeasonLongPoints}
+        seasonLongLows={leastSeasonLongPoints}
+        {showTies}
+        {winPercentages}
+        {fptsHistories}
+        {lineupIQs}
+        {tradesData}
+        {waiversData}
+        prefix="All-Time"
+        allTime={true}
+        {leagueTeamManagers}
+        {key}
+    />
+</div>

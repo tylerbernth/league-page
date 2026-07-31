@@ -2,77 +2,28 @@
     export let sideOne, sideTwo, label, unit;
 </script>
 
-<style>
-    .enclosure {
-        padding: 4px 8px;
-        text-align: center;
-    }
-    .gray_bar {
-        position: relative;
-        height: 8px;
-        border-radius: 4px;
-        width: 75%;
-        margin: 0 auto;
-        background-color: #e5e5e5;
-        border: 1px solid #bbb;
-    }
-    .side {
-        position: absolute;
-        height: 8px;
-        top: 0;
-    }
-    .side_one {
-        background-color: var(--compBarOne);
-        right: 50%;
-        border-radius: 4px 0 0 4px;
-    }
-    .side_two {
-        background-color: var(--compBarTwo);
-        left: 50%;
-        border-radius: 0 4px 4px 0;
-    }
-    .oneWinner {
-        color: var(--compBarOneText);
-        font-weight: 800;
-        text-decoration: underline;
-    }
-    .twoWinner {
-        color: var(--compBarTwoText);
-        font-weight: 800;
-        text-decoration: underline;
-    }
-    h4 {
-        text-align: center;
-        font-size: 1.4em;
-        margin: 10px;
-    }
-    .stats {
-        display: flex;
-        width: 75%;
-        margin: 0 auto;
-        justify-content: space-between;
-    }
-    @media (max-width: 650px) {
-        h4 {
-            font-size: 1.2em;
-        }
-    }
-    @media (max-width: 400px) {
-        h4 {
-            font-size: 1.1em;
-        }
-    }
-</style>
+<div class="my-4 px-2 text-center">
+    <h4 class="mx-2.5 my-2.5 text-lg font-medium text-slate-200 sm:text-xl">
+        {label}
+    </h4>
 
-<h4>{label}</h4>
-
-<div class="enclosure">
-    <div class="gray_bar">
-        <div class="side side_one" style="width: {sideOne / (sideOne + sideTwo) * 50}%"/>
-        <div class="side side_two" style="width: {sideTwo / (sideOne + sideTwo) * 50}%"/>
+    <div class="relative mx-auto h-2 w-3/4 rounded-full border border-slate-700 bg-slate-800">
+        <div 
+            class="absolute top-0 right-1/2 h-2 rounded-l-full bg-indigo-500 transition-all duration-300" 
+            style="width: {sideOne / (sideOne + sideTwo) * 50}%"
+        ></div>
+        <div 
+            class="absolute top-0 left-1/2 h-2 rounded-r-full bg-cyan-500 transition-all duration-300" 
+            style="width: {sideTwo / (sideOne + sideTwo) * 50}%"
+        ></div>
     </div>
-    <div class="stats">
-        <span class="stat{sideOne > sideTwo ? ' oneWinner' : ''}">{sideOne} {unit}</span>
-        <span class="stat{sideTwo > sideOne ? ' twoWinner' : ''}">{sideTwo} {unit}</span>
+
+    <div class="mx-auto mt-2 flex w-3/4 justify-between text-sm">
+        <span class={sideOne > sideTwo ? 'font-extrabold text-indigo-400 underline decoration-indigo-400/60 decoration-2 underline-offset-4' : 'text-slate-400'}>
+            {sideOne} {unit}
+        </span>
+        <span class={sideTwo > sideOne ? 'font-extrabold text-cyan-400 underline decoration-cyan-400/60 decoration-2 underline-offset-4' : 'text-slate-400'}>
+            {sideTwo} {unit}
+        </span>
     </div>
 </div>

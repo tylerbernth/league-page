@@ -4,7 +4,7 @@
     import AllTimeRecords from './AllTimeRecords.svelte';
     import PerSeasonRecords from './PerSeasonRecords.svelte';
 
-    let {leagueData, totals, stale, leagueTeamManagers} = $props();;
+    let {leagueData, totals, stale, leagueTeamManagers} = $props();
 
     const refreshTransactions = async () => {
         const newTransactions = await getLeagueTransactions(false, true);
@@ -25,8 +25,6 @@
 
     const refreshRecords = async () => {
         const newRecords = await getLeagueRecords(true);
-
-        // update values with new data
         leagueData = newRecords;
     }
 
@@ -59,69 +57,61 @@
     }
 
     let display = $state("allTime");
-
 </script>
 
 <style>
-    .rankingsWrapper {
-        margin: 0 auto;
-        width: 100%;
-        max-width: 1200px;
+    /* Force SMUI raised buttons to use custom indigo styling */
+    :global(.mdc-button.mdc-button--raised) {
+        background-color: #4f46e5 !important; /* bg-indigo-600 */
+        color: #ffffff !important;
     }
 
-    .empty {
-        margin: 10em 0 4em;
-        text-align: center;
+    /* Keep outlined state matching your dark theme slate borders */
+    :global(.mdc-button.mdc-button--outlined) {
+        border-color: #334155 !important; /* border-slate-700 */
+        color: #94a3b8 !important; /* text-slate-400 */
     }
 
-    /* Button Styling */
-    .buttonHolder {
-        text-align: center;
-        margin: 2em 0 0;
+    :global(.mdc-button.mdc-button--outlined:hover) {
+        background-color: rgba(30, 41, 59, 0.5) !important;
+        color: #f1f5f9 !important;
     }
-
-    /* Start button resizing */
 
     @media (max-width: 540px) {
         :global(.buttonHolder .selectionButtons) {
             font-size: 0.6em;
         }
     }
-
     @media (max-width: 415px) {
         :global(.buttonHolder .selectionButtons) {
             font-size: 0.5em;
             padding: 0 6px;
         }
     }
-
     @media (max-width: 315px) {
         :global(.buttonHolder .selectionButtons) {
             font-size: 0.45em;
             padding: 0 3px;
         }
     }
-
-    /* End button resizing */
 </style>
 
-<div class="rankingsWrapper">
-
-    <div class="buttonHolder">
+<div class="mx-auto w-full max-w-6xl px-4 py-8">
+    <div class="buttonHolder mb-8 text-center space-y-4">
         <Group variant="outlined">
-            <Button class="selectionButtons" onclick={() => key = "regularSeasonData"} variant="{key == "regularSeasonData" ? "raised" : "outlined"}">
+            <Button class="selectionButtons" onclick={() => key = "regularSeasonData"} variant={key == "regularSeasonData" ? "raised" : "outlined"}>
                 <Label>Regular Season</Label>
             </Button>
-            <Button class="selectionButtons" onclick={() => key = "playoffData"} variant="{key == "playoffData" ? "raised" : "outlined"}">
+            <Button class="selectionButtons" onclick={() => key = "playoffData"} variant={key == "playoffData" ? "raised" : "outlined"}>
                 <Label>Playoffs</Label>
             </Button>
         </Group>
-        <br />
+        <div class="block"></div>
         <Group variant="outlined">
-            <Button class="selectionButtons" onclick={() => display = "allTime"} variant="{display == "allTime" ? "raised" : "outlined"}">
+            <Button class="selectionButtons" onclick={() => display = "allTime"} variant={display == "allTime" ? "raised" : "outlined"}>
                 <Label>All-Time Records</Label>
             </Button>
-            <Button class="selectionButtons" onclick={() => display = "season"} variant="{display == "season" ? "raised" : "outlined"}">
+            <Button class="selectionButtons" onclick={() => display = "season"} variant={display == "season" ? "raised" : "outlined"}>
                 <Label>Season Records</Label>
             </Button>
         </Group>
@@ -131,7 +121,9 @@
         {#if leagueWeekHighs?.length}
             <AllTimeRecords transactionTotals={totals} {allTimeClosestMatchups} {allTimeBiggestBlowouts} {leagueManagerRecords} {leagueWeekHighs} {leagueWeekLows} {leagueTeamManagers} {mostSeasonLongPoints} {leastSeasonLongPoints} {key} />
         {:else}
-            <p class="empty">No records <i>yet</i>...</p>
+            <div class="my-20 text-center text-slate-500 italic">
+                <p>No records <i>yet</i>...</p>
+            </div>
         {/if}
     {:else}
         <PerSeasonRecords transactionTotals={totals} {leagueRosterRecords} {seasonWeekRecords} {leagueTeamManagers} {currentYear} {lastYear} {key} />

@@ -102,154 +102,120 @@
     $: playerTwoRecords = recordsInfo?.regularSeasonData?.leagueManagerRecords ? recordsInfo.regularSeasonData.leagueManagerRecords[playerTwo] : null;
 </script>
 
-<style>
-    .scoreBoard {
-        width: 97%;
-        border-radius: 20px;
-        background-color: var(--rivalryBack);
-        border: 1px solid var(--aaa);
-        margin: 2em auto;
-        padding: 2em 0;
-        max-width: 1000px;
-    }
-    h2 {
-        text-align: center;
-        font-size: 2.4em;
-        margin: 1.3em 0 0;
-    }
-    h3 {
-        text-align: center;
-        font-size: 1.9em;
-        margin: 20px 0 16px;
-    }
-    .trades {
-        width: 95%;
-        max-width: 750px;
-        margin: 2em auto;
-    }
-	.loading {
-		display: block;
-		width: 85%;
-		max-width: 500px;
-		margin: 80px auto;
-	}
-    .center {
-        text-align: center;
-    }
-    .helmets {
-        width: 80%;
-        max-width: 800px;
-        margin: 0 auto 2em;
-    }
-    @media (max-width: 650px) {
-        h3 {
-            font-size: 1.6em;
-        }
-    }
-    @media (max-width: 400px) {
-        h2 {
-            font-size: 2em;
-        }
-        h3 {
-            font-size: 1.3em;
-        }
-    }
-</style>
+<div class="mx-auto max-w-6xl px-4 py-8">
+    <h2 class="mb-6 text-center text-3xl font-light tracking-wide text-slate-100 sm:text-4xl">
+        Rivalry
+    </h2>
 
-<h2>Rivalry</h2>
+    <div class="mb-10">
+        <ManagerSelectors bind:playerOne={playerOne} bind:playerTwo={playerTwo} {leagueTeamManagers} />
+    </div>
 
-<div class="rivalrySelection">
-    <ManagerSelectors bind:playerOne={playerOne} bind:playerTwo={playerTwo} {leagueTeamManagers} />
-</div>
-
-{#if loading }
-    {#if playerOne && playerTwo }
-        <div class="loading">
-            <p>Analyzing rivalry...</p>
-            <br />
-            <LinearProgress indeterminate />
-        </div>
-    {:else}
-        <div class="center">
-            <img class="helmets" src="/helmets.png" alt="placeholder of helmets clashing" />
-        </div>
-    {/if}
-{:else}
-    {#if rivalry?.matchups.length > 0 }
-        <div class="scoreBoard">
-            <h3>Head to Head</h3>
-            <!-- wins -->
-            <ComparissonBar sideOne={rivalry.wins.one} sideTwo={rivalry.wins.two} label="Wins" unit="wins" />
-            <!-- points -->
-            <ComparissonBar sideOne={parseFloat(round(rivalry.points.one))} sideTwo={parseFloat(round(rivalry.points.two))} label="Points" unit="pts" />
-            <h3>Matchups</h3>
-            <RivalryControls bind:selected={selected} {year} {displayWeek} length={rivalry.matchups.length} />
-            <Matchup key={`${playerOne}-${playerTwo}`} ix={selected} active={selected} {year} {matchup} players={playersInfo.players} {displayWeek} expandOverride={true} {leagueTeamManagers} />
-        </div>
-    {/if}
-    <div class="scoreBoard">
+    {#if loading }
         {#if playerOne && playerTwo }
-            <!-- trades -->
-            <h3>Trade History</h3>
-            <div class="trades">
-                {#each tradeHistory as transaction }
-                    <TradeTransaction players={playersInfo.players} {transaction} {leagueTeamManagers} />
-                {:else}
-                    No trades yet...
-                {/each}
+            <div class="mx-auto my-20 w-full max-w-md rounded-2xl border border-indigo-500/10 bg-slate-900/60 p-8 text-center shadow-xl backdrop-blur-md">
+                <p class="text-lg font-medium text-slate-300">Analyzing rivalry...</p>
+                <div class="mt-6">
+                    <LinearProgress indeterminate />
+                </div>
+            </div>
+        {:else}
+            <div class="my-12 text-center">
+                <img class="mx-auto w-4/5 max-w-md opacity-80 drop-shadow-2xl" src="/helmets.png" alt="placeholder of helmets clashing" />
             </div>
         {/if}
-    </div>
-    {#if playerOne && playerTwo && playerOneRecords && playerTwoRecords }
-        <div class="scoreBoard">
-            <!-- record comparisson -->
-            <h3>Performance Comparisson</h3>
-            <ComparissonBar
-                sideOne={parseFloat(round(
-                    playerOneRecords.wins/(playerOneRecords.wins + playerOneRecords.ties + playerOneRecords.losses) * 100
-                    ))}
-                sideTwo={parseFloat(round(
-                    playerTwoRecords.wins/(playerTwoRecords.wins + playerTwoRecords.ties + playerTwoRecords.losses) * 100
-                    ))}
-                label="Win Percentage"
-                unit="%"
-            />
-            {#each performanceOrderOne as stat }
-                <ComparissonBar
-                    sideOne={parseFloat(round(playerOneRecords[stat.field]))}
-                    sideTwo={parseFloat(round(playerTwoRecords[stat.field]))}
-                    label={stat.label}
-                    unit={stat.unit}
-                />
-            {/each}
-            <ComparissonBar
-                sideOne={parseFloat(round(
-                    playerOneRecords.fptsFor/(playerOneRecords.wins + playerOneRecords.ties + playerOneRecords.losses)
-                    ))}
-                sideTwo={parseFloat(round(
-                    playerTwoRecords.fptsFor/(playerTwoRecords.wins + playerTwoRecords.ties + playerTwoRecords.losses)
-                    ))}
-                label="Fantasy Points per Game"
-                unit="fpts/game"
-            />
-            {#each performanceOrderTwo as stat }
-                <ComparissonBar
-                    sideOne={parseFloat(round(playerOneRecords[stat.field]))}
-                    sideTwo={parseFloat(round(playerTwoRecords[stat.field]))}
-                    label={stat.label}
-                    unit={stat.unit}
-                />
-            {/each}
-            <ComparissonBar
-                sideOne={parseFloat(round(
-                    playerOneRecords.fptsFor/playerOneRecords.potentialPoints * 100
-                    ))}
-                sideTwo={parseFloat(round(
-                    playerTwoRecords.fptsFor/playerTwoRecords.potentialPoints * 100
-                    ))}
-                label="Lineup IQ"
-                unit="%"
-            />
+    {:else}
+        {#if rivalry?.matchups.length > 0 }
+            <div class="mx-auto my-8 w-full max-w-5xl rounded-2xl border border-indigo-500/10 bg-slate-900/60 p-6 shadow-xl backdrop-blur-md sm:p-8">
+                <h3 class="mb-6 text-center text-xl font-light tracking-wide text-slate-200 sm:text-2xl">Head to Head</h3>
+                
+                <!-- wins -->
+                <ComparissonBar sideOne={rivalry.wins.one} sideTwo={rivalry.wins.two} label="Wins" unit="wins" />
+                
+                <!-- points -->
+                <ComparissonBar sideOne={parseFloat(round(rivalry.points.one))} sideTwo={parseFloat(round(rivalry.points.two))} label="Points" unit="pts" />
+                
+                <h3 class="mt-10 mb-6 text-center text-xl font-light tracking-wide text-slate-200 sm:text-2xl">Matchups</h3>
+                <RivalryControls bind:selected={selected} {year} {displayWeek} length={rivalry.matchups.length} />
+                
+                <div class="mt-4">
+                    <Matchup key={`${playerOne}-${playerTwo}`} ix={selected} active={selected} {year} {matchup} players={playersInfo.players} {displayWeek} expandOverride={true} {leagueTeamManagers} />
+                </div>
+            </div>
+        {/if}
+
+        <div class="mx-auto my-8 w-full max-w-5xl rounded-2xl border border-indigo-500/10 bg-slate-900/60 p-6 shadow-xl backdrop-blur-md sm:p-8">
+            {#if playerOne && playerTwo }
+                <!-- trades -->
+                <h3 class="mb-6 text-center text-xl font-light tracking-wide text-slate-200 sm:text-2xl">Trade History</h3>
+                <div class="mx-auto max-w-3xl space-y-4">
+                    {#each tradeHistory as transaction }
+                        <TradeTransaction players={playersInfo.players} {transaction} {leagueTeamManagers} />
+                    {:else}
+                        <div class="py-8 text-center text-sm italic text-slate-500">
+                            No trades yet...
+                        </div>
+                    {/each}
+                </div>
+            {/if}
         </div>
+
+        {#if playerOne && playerTwo && playerOneRecords && playerTwoRecords }
+            <div class="mx-auto my-8 w-full max-w-5xl rounded-2xl border border-indigo-500/10 bg-slate-900/60 p-6 shadow-xl backdrop-blur-md sm:p-8">
+                <!-- record comparisson -->
+                <h3 class="mb-6 text-center text-xl font-light tracking-wide text-slate-200 sm:text-2xl">Performance Comparison</h3>
+                
+                <ComparissonBar
+                    sideOne={parseFloat(round(
+                        playerOneRecords.wins/(playerOneRecords.wins + playerOneRecords.ties + playerOneRecords.losses) * 100
+                        ))}
+                    sideTwo={parseFloat(round(
+                        playerTwoRecords.wins/(playerTwoRecords.wins + playerTwoRecords.ties + playerTwoRecords.losses) * 100
+                        ))}
+                    label="Win Percentage"
+                    unit="%"
+                />
+                
+                {#each performanceOrderOne as stat }
+                    <ComparissonBar
+                        sideOne={parseFloat(round(playerOneRecords[stat.field]))}
+                        sideTwo={parseFloat(round(playerTwoRecords[stat.field]))}
+                        label={stat.label}
+                        unit={stat.unit}
+                    />
+                {/each}
+                
+                <ComparissonBar
+                    sideOne={parseFloat(round(
+                        playerOneRecords.fptsFor/(playerOneRecords.wins + playerOneRecords.ties + playerOneRecords.losses)
+                        ))}
+                    sideTwo={parseFloat(round(
+                        playerTwoRecords.fptsFor/(playerTwoRecords.wins + playerTwoRecords.ties + playerTwoRecords.losses)
+                        ))}
+                    label="Fantasy Points per Game"
+                    unit="fpts/game"
+                />
+                
+                {#each performanceOrderTwo as stat }
+                    <ComparissonBar
+                        sideOne={parseFloat(round(playerOneRecords[stat.field]))}
+                        sideTwo={parseFloat(round(playerTwoRecords[stat.field]))}
+                        label={stat.label}
+                        unit={stat.unit}
+                    />
+                {/each}
+                
+                <ComparissonBar
+                    sideOne={parseFloat(round(
+                        playerOneRecords.fptsFor/playerOneRecords.potentialPoints * 100
+                        ))}
+                    sideTwo={parseFloat(round(
+                        playerTwoRecords.fptsFor/playerTwoRecords.potentialPoints * 100
+                        ))}
+                    label="Lineup IQ"
+                    unit="%"
+                />
+            </div>
+        {/if}
     {/if}
-{/if}
+</div>

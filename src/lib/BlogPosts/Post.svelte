@@ -32,50 +32,68 @@
 
 <style>
     .post {
-        background-color: var(--fff);
-        border: 1px solid var(--bbb);
-        border-radius: 1.5em;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, rgba(6, 182, 212, 0.02) 100%);
+        border: 1px solid var(--eee);
+        border-radius: 12px;
         color: var(--g333);
-        padding: 1.5em 0 1em;
+        padding: 1.5em;
         margin: 2em 0;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .post:hover {
+        box-shadow: 0 8px 16px rgba(79, 70, 229, 0.12);
+        border-color: rgba(79, 70, 229, 0.2);
     }
 
     h3 {
         font-size: 2em;
         text-align: center;
         margin: 0;
+        color: var(--blueOne);
     }
 
     .button {
-        background-color: #0082c3;
+        background: linear-gradient(135deg, var(--blueOne) 0%, var(--blueTwo) 100%);
         font-size: 1em;
-        border-radius: 1em;
+        border-radius: 8px;
         text-decoration: none;
-        padding: 0.5em 1em;
+        padding: 0.75em 1.5em;
         margin-right: 1em;
         color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
     }
 
     .button:hover {
-        background-color: #00316b;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
     }
 
     :global(.body blockquote) {
-        border-left: 3px solid rgb(231, 235, 238);
+        border-left: 4px solid var(--blueTwo);
         margin: 1em 2em;
         padding-left: 0.875em;
+        background-color: rgba(79, 70, 229, 0.03);
+        padding: 1em;
+        border-radius: 4px;
     }
 
     :global(.body .heading-1) {
         padding: 0.4em 2em;
         font-size: 1.9em;
         text-align: center;
+        color: var(--blueOne);
     }
 
     :global(.body .heading-2) {
         padding: 0.4em 2em;
         font-size: 1.8em;
         text-align: center;
+        color: var(--blueOne);
     }
 
     :global(.body .heading-3) {

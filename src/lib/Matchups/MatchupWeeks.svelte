@@ -1,56 +1,54 @@
 <script>
-	import { Icon } from '@smui/tab';
-    import Matchup from './Matchup.svelte'
+    import { Icon } from '@smui/tab';
+    import Matchup from './Matchup.svelte';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
 
     export let queryWeek, players, matchupWeeks, year, week, regularSeasonLength, selection, leagueTeamManagers;
 
-    let displayWeek = queryWeek * 1 || 1;
-
-    onMount(() => {
-        if(!queryWeek || queryWeek < 1) {
-            queryWeek = week;
-            displayWeek = queryWeek * 1;
-            goto(`/matchups?week=${queryWeek}`, {noscroll: true});
-            if(queryWeek > regularSeasonLength) {
-                selection = 'champions';
-                return;
-            }
-            processDisplayMatchup(queryWeek)
-            return;
-        }
-        if(queryWeek > regularSeasonLength) {
-            selection = 'champions';
-            return;
-        }
-        processDisplayMatchup(displayWeek)
-    })
-
+    let displayWeek = (queryWeek * 1) || 1;
+    let active = null;
     let matchupArray = [];
 
-    // rand is used as a hacky way to make sure that the each block re-renders when the matchupArray changes
-    // the new arrays are too similar to the old ones for Svelte to pick up the difference
-    let rand;
-
-    const processDisplayMatchup = (newWeek) => {
-        const matchup = matchupWeeks[newWeek-1];
-        const allMatchups = matchup.matchups;
-        matchupArray = [];
-        for (const key in allMatchups) {
-            matchupArray.push(allMatchups[key]);
-        }
-        rand = Math.random();
+    // Sync displayWeek whenever queryWeek prop changes (e.g. via navigation)
+    $: if (queryWeek) {
+        displayWeek = queryWeek * 1;
     }
 
-    let active;
-    
+    onMount(() => {
+        if (!queryWeek || queryWeek < 1) {
+            queryWeek = week;
+            displayWeek = queryWeek * 1;
+            goto(`/matchups?week=${queryWeek}`, { noscroll: true });
+            if (queryWeek > regularSeasonLength) {
+                selection = 'champions';
+            }
+        } else if (queryWeek > regularSeasonLength) {
+            selection = 'champions';
+        }
+    });
+
+    // Automatically recalculate matchupArray whenever displayWeek or matchupWeeks changes
+    $: if (matchupWeeks && matchupWeeks.length && displayWeek) {
+        const matchup = matchupWeeks[displayWeek - 1];
+        if (matchup && matchup.matchups) {
+            const allMatchups = matchup.matchups;
+            const newArray = [];
+            for (const key in allMatchups) {
+                newArray.push(allMatchups[key]);
+            }
+            matchupArray = newArray;
+        } else {
+            matchupArray = [];
+        }
+    }
+
     const changeWeek = (newWeek) => {
         displayWeek = newWeek;
-        processDisplayMatchup(displayWeek);
+        queryWeek = newWeek;
         active = null;
-        goto(`/matchups?week=${displayWeek}`, {noscroll: true});
-    }
+        goto(`/matchups?week=${displayWeek}`, { noscroll: true });
+    };
 </script>
 
 <style>
@@ -69,6 +67,8 @@
         font-size: 3em;
         cursor: pointer;
         color: #888;
+        transition: color 0.2s ease-in-out;
+        user-select: none;
     }
 
     :global(.changeWeek:hover) {
@@ -83,6 +83,8 @@
         flex-grow: 1;
         text-align: center;
         font-size: 2em;
+        font-weight: 600;
+        margin: 0;
     }
 
     @media (max-width: 800px) {
@@ -107,18 +109,34 @@
 <div class="matchups">
     <div class="weekContainer">
         {#if displayWeek > 1}
+            <!-- Svelte 5 uses onclick directly -->
             <Icon class="material-icons changeWeek" onclick={() => changeWeek(displayWeek - 1)}>chevron_left</Icon>
         {:else}
-            <span class="spacer" />
+            <!-- Fixed self-closing span tag -->
+            <span class="spacer"></span>
         {/if}
+
         <h3 class="weekText">{year} Week {displayWeek} Matchups</h3>
-        {#if displayWeek < matchupWeeks.length}
+
+        {#if displayWeek < (matchupWeeks ? matchupWeeks.length : 0)}
             <Icon class="material-icons changeWeek" onclick={() => changeWeek(displayWeek + 1)}>chevron_right</Icon>
         {:else}
-            <span class="spacer" />
+            <!-- Fixed self-closing span tag -->
+            <span class="spacer"></span>
         {/if}
     </div>
-    {#each matchupArray as matchup, ix (rand * (ix + 1))}
-        <Matchup {ix} {matchup} {players} {displayWeek} bind:active={active} {leagueTeamManagers} />
-    {/each}
+
+    {#key displayWeek}
+        {#each matchupArray as matchup, ix (ix)}
+            <Matchup 
+                {ix} 
+                {matchup} 
+                {players} 
+                {displayWeek} 
+                bind:active={active} 
+                {leagueTeamManagers} 
+                {year}
+            />
+        {/each}
+    {/key}
 </div>

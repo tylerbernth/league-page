@@ -6,375 +6,129 @@
 	const { year, champion, second, third, divisions, toilet } = podium;
 </script>
 
-<style>
-	* {
-		color: var(--g555);
-	}
-
-	h3 {
-		margin: 2.5em 0 1.5em;
-	}
-
-	.awards {
-		display: block;
-		position: relative;
-		width: 100%;
-		z-index: 1;
-	}
-
-	#podium {
-		width: 600px;
-		height: 500px;
-		position: relative;
-		margin: 10px auto 30px;
-	}
-
-	.podiumImage {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		height: auto;
-		z-index: 3;
-	}
-
-	.champ {
-		position: absolute;
-		width: 20%;
-		height: auto;
-		transform: translate(-50%, -50%);
-		border-radius: 100%;
-		border: 1px solid var(--bbb);
-		background-color: var(--fff);
-	}
-
-	.laurel {
-		position: absolute;
-		width: 33%;
-		height: auto;
-		transform: translate(-50%, -50%);
-		bottom: 56.6%;
-		left: 50%;
-		pointer-events: none;
-	}
-
-	.first {
-		bottom: 70%;
-		left: 50%;
-	}
-
-	.second {
-		bottom: 43%;
-		left: 20%;
-	}
-
-	.third {
-		bottom: 39%;
-		left: 80%;
-	}
-
-	h3 {
-		text-align: center;
-	}
-
-	.leaderBlock {
-		position: relative;
-		width: 80px;
-		height: 119px;
-		margin: 15px auto;
-	}
-
-	.divisions {
-		display: flex;
-		justify-content: space-around;
-	}
-
-	.divisionLeader {
-		position: absolute;
-		width: 70px;
-		height: 70px;
-		transform: translate(-50%, 0%);
-		top: 0;
-		left: 50%;
-		border-radius: 100%;
-		border: 1px solid var(--bbb);
-		background-color: var(--fff);
-		z-index: 3;
-	}
-
-	.medal {
-		position: absolute;
-		width: 40px;
-		height: auto;
-		transform: translate(-50%, 0%);
-		bottom: 0;
-		left: 50%;
-		z-index: 2;
-	}
-
-	.toiletBowl {
-		position: relative;
-		width: 215px;
-		height: 190px;
-		margin: 10px auto;
-	}
-
-	.toiletWinner {
-		position: absolute;
-		width: 65px;
-		height: 65px;
-		transform: translate(-50%, 0%);
-		top: 20px;
-		left: 55%;
-		border-radius: 100%;
-		border: 1px solid var(--bbb);
-		z-index: 3;
-	}
-
-	.toilet {
-		position: absolute;
-		width: 100%;
-		height: auto;
-		transform: translate(-50%, 0%);
-		bottom: 0;
-		left: 50%;
-	}
-
-	.label {
-		white-space: nowrap;
-		line-height: 1.1em;
-		text-align: center;
-		min-height: 34px;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		position: absolute;
-		transform: translate(-50%, -50%);
-		padding: 6px 30px;
-		background-color: var(--fff);
-		border: 1px solid var(--bbb);
-        box-shadow: 0px 3px 3px -2px var(--boxShadowOne), 0px 3px 4px 0px var(--boxShadowTwo), 0px 1px 8px 0px var(--boxShadowThree);
-	}
-
-	.firstLabel {
-		bottom: 60%;
-		left: 50%;
-	}
-
-	.secondLabel {
-		bottom: 40%;
-		left: 20%;
-	}
-
-	.thirdLabel {
-		bottom: 36%;
-		left: 80%;
-	}
-
-	.genLabel {
-		white-space: nowrap;
-		line-height: 1.1em;
-		min-height: 34px;
-		display: inline-flex;
-		flex-direction: column;
-		justify-content: center;
-		text-align: center;
-		margin: 15px auto 20px;
-		padding: 6px 30px;
-		background-color: var(--fff);
-		border: 1px solid var(--bbb);
-		box-shadow: 0px 3px 3px -2px var(--boxShadowOne), 0px 3px 4px 0px var(--boxShadowTwo), 0px 1px 8px 0px var(--boxShadowThree);
-	}
-
-	.division {
-		text-align: center;
-	}
-
-	.toiletParent {
-		width: 100%;
-		text-align: center;
-		padding: 25px 0 40px;
-		margin-top: 30px;
-		box-shadow: 0 12px 9px -12px rgba(0,0,0,0.4);
-	}
-
-	.banner {
-		display: block;
-		width: 65%;
-		max-width: 450px;
-		margin: 20px auto 0;
-	}
-
-	.toilet-banner {
-		display: block;
-		width: 50%;
-		max-width: 350px;
-		margin: 20px auto 0;
-	}
-
-	.clickable {
-		cursor: pointer;
-	}
-
-	:global(.curOwner) {
-		font-size: 0.75em;
-		color: var(--bbb);
-		font-style: italic;
-	}
-
-	@media (max-width: 680px) {
-		.label {
-			padding: 6px 8px;
-		}
-		.genLabel {
-			padding: 6px 8px;
-		}
-	}
-
-	@media (max-width: 630px) {
-		.label {
-			font-size: 0.9em;
-		}
-		.genLabel {
-			font-size: 0.9em;
-		}
-	}
-
-	@media (max-width: 610px) {
-		#podium {
-			width: 500px;
-			height: 417px;
-			position: relative;
-			margin: 10px auto 30px;
-		}
-
-		.firstLabel {
-			bottom: 58%;
-		}
-
-		.secondLabel {
-			bottom: 35%;
-		}
-
-		.thirdLabel {
-			bottom: 31%;
-		}
-	}
-
-	@media (max-width: 535px) {
-		.label {
-			font-size: 0.8em;
-		}
-		.genLabel {
-			font-size: 0.8em;
-		}
-	}
-
-	@media (max-width: 520px) {
-		.label {
-			font-size: 0.7em;
-			padding: 2px 4px;
-		}
-		.genLabel {
-			font-size: 0.7em;
-			padding: 2px 4px;
-		}
-	}
-
-	@media (max-width: 510px) {
-		#podium {
-			width: 400px;
-			height: 333px;
-		}
-	}
-
-	@media (max-width: 425px) {
-		.label {
-			font-size: 0.6em;
-		}
-		.genLabel {
-			font-size: 0.6em;
-		}
-	}
-
-	@media (max-width: 410px) {
-		#podium {
-			width: 300px;
-			height: 250px;
-		}
-
-		.firstLabel {
-			bottom: 53%;
-		}
-
-		.secondLabel {
-			bottom: 31%;
-		}
-
-		.thirdLabel {
-			bottom: 27%;
-		}
-	}
-
-	@media (max-width: 329px) {
-		.label {
-			font-size: 0.5em;
-		}
-		.genLabel {
-			font-size: 0.5em;
-		}
-	}
-</style>
-
-<div class="awards">
-	<h3>{year} Awards</h3>
-
-	<img src="/banner.png" class="banner" alt="The Champion's Cup" />
-
-	<div id="podium">
-		<img src="/podium.png" class="podiumImage" alt="podium" />
-
-		<!-- champs -->
-		<img src="{getAvatarFromTeamManagers(leagueTeamManagers, champion, year)}" class="first champ clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: champion})} alt="champion" />
-		<img src="/laurel.png" class="laurel" alt="laurel" />
-		<span class="label firstLabel clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: champion})}>{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, champion)}</span>
-
-		<img src="{getAvatarFromTeamManagers(leagueTeamManagers, second, year)}" class="second champ clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: second})} alt="2nd" />
-		<span class="label secondLabel clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: second})}>{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, second)}</span>
-
-		<img src="{getAvatarFromTeamManagers(leagueTeamManagers, third, year)}" class="third champ clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: third})} alt="3rd" />
-		<span class="label thirdLabel clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: third})}>{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, third)}</span>
+<div class="relative w-full max-w-5xl mx-auto px-4 py-8 text-slate-200">
+	<!-- Header Section -->
+	<div class="text-center mb-10">
+		<span class="inline-block py-1 px-3 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold tracking-wider uppercase mb-3">
+			Hall of Fame
+		</span>
+		<h3 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">{year} Awards & Champions</h3>
 	</div>
-	<div class="divisions">
-		{#each divisions as division}
-			{#if division.rosterID}
-				<div class="division">
-					{#if division.name}
-						<h6>{division.name} Division</h6>
-					{:else}
-						<h6>Regular Season Champion</h6>
-					{/if}
-					<div class="leaderBlock">
-						<img src="{getAvatarFromTeamManagers(leagueTeamManagers, division.rosterID, year)}" class="divisionLeader clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: division.rosterID})} alt="{division.name} champion" />
-						<img src="/medal.png" class="medal" alt="champion" />
-					</div>
-					<span class="genLabel clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: division.rosterID})}>{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, division.rosterID)}</span>
+
+	<!-- Champion's Podium Card -->
+	<div class="relative bg-gradient-to-b from-slate-900/80 to-slate-950/90 border border-slate-800/80 rounded-3xl p-6 md:p-10 shadow-2xl backdrop-blur-xl overflow-hidden mb-12">
+		<!-- Decorative background glow -->
+		<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+		<div class="text-center mb-8 relative z-10">
+			<img src="/banner.png" class="w-2/3 max-w-[320px] mx-auto filter drop-shadow-[0_10px_8px_rgba(0,0,0,0.5)]" alt="The Champion's Cup" />
+		</div>
+
+		<div id="podium" class="w-[280px] h-[233px] sm:w-[380px] sm:h-[316px] md:w-[480px] md:h-[400px] lg:w-[560px] lg:h-[466px] relative mx-auto my-4">
+			<img src="/podium.png" class="absolute bottom-0 left-0 w-full h-auto z-20 opacity-90 drop-shadow-lg" alt="podium" />
+
+			<!-- Champion (1st) -->
+			<div class="absolute bottom-[70%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center group cursor-pointer" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: champion})}>
+				<div class="relative">
+					<div class="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-200 opacity-75 blur group-hover:opacity-100 transition duration-300"></div>
+					<img src="{getAvatarFromTeamManagers(leagueTeamManagers, champion, year)}" class="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full border-2 border-amber-300 bg-slate-900 object-cover shadow-xl" alt="champion" />
 				</div>
-			{/if}
-		{/each}
+			</div>
+			<img src="/laurel.png" class="absolute w-[30%] h-auto -translate-x-1/2 -translate-y-1/2 bottom-[55%] left-[50%] pointer-events-none z-30 drop-shadow-md" alt="laurel" />
+			<div class="absolute -translate-x-1/2 -translate-y-1/2 bottom-[49%] sm:bottom-[54%] lg:bottom-[57%] left-[50%] z-40 cursor-pointer group" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: champion})}>
+				<div class="px-3 py-1.5 bg-slate-900/90 border border-amber-500/40 rounded-xl shadow-lg backdrop-blur-md text-center transition group-hover:border-amber-400 group-hover:bg-slate-800">
+					<span class="block text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider mb-0.5">Champion</span>
+					<span class="block text-xs sm:text-sm font-bold text-white whitespace-nowrap">{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, champion)}</span>
+				</div>
+			</div>
+
+			<!-- Second Place -->
+			<div class="absolute bottom-[43%] left-[20%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center group cursor-pointer" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: second})}>
+				<div class="relative">
+					<div class="absolute -inset-1 rounded-full bg-gradient-to-r from-slate-300 to-slate-500 opacity-50 blur group-hover:opacity-100 transition duration-300"></div>
+					<img src="{getAvatarFromTeamManagers(leagueTeamManagers, second, year)}" class="relative w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full border-2 border-slate-300 bg-slate-900 object-cover shadow-xl" alt="2nd" />
+				</div>
+			</div>
+			<div class="absolute -translate-x-1/2 -translate-y-1/2 bottom-[30%] sm:bottom-[34%] lg:bottom-[38%] left-[20%] z-40 cursor-pointer group" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: second})}>
+				<div class="px-2.5 py-1 bg-slate-900/90 border border-slate-700 rounded-xl shadow-lg backdrop-blur-md text-center transition group-hover:border-slate-500 group-hover:bg-slate-800">
+					<span class="block text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">2nd Place</span>
+					<span class="block text-[11px] sm:text-xs font-bold text-slate-200 whitespace-nowrap">{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, second)}</span>
+				</div>
+			</div>
+
+			<!-- Third Place -->
+			<div class="absolute bottom-[39%] left-[80%] -translate-x-1/2 -translate-y-1/2 z-30 flex flex-col items-center group cursor-pointer" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: third})}>
+				<div class="relative">
+					<div class="absolute -inset-1 rounded-full bg-gradient-to-r from-amber-700 to-amber-900 opacity-50 blur group-hover:opacity-100 transition duration-300"></div>
+					<img src="{getAvatarFromTeamManagers(leagueTeamManagers, third, year)}" class="relative w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full border-2 border-amber-700 bg-slate-900 object-cover shadow-xl" alt="3rd" />
+				</div>
+			</div>
+			<div class="absolute -translate-x-1/2 -translate-y-1/2 bottom-[26%] sm:bottom-[30%] lg:bottom-[34%] left-[80%] z-40 cursor-pointer group" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: third})}>
+				<div class="px-2.5 py-1 bg-slate-900/90 border border-amber-800/60 rounded-xl shadow-lg backdrop-blur-md text-center transition group-hover:border-amber-600 group-hover:bg-slate-800">
+					<span class="block text-[9px] sm:text-[10px] font-semibold text-amber-600 uppercase tracking-wider mb-0.5">3rd Place</span>
+					<span class="block text-[11px] sm:text-xs font-bold text-slate-200 whitespace-nowrap">{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, third)}</span>
+				</div>
+			</div>
+		</div>
 	</div>
 
-		<!-- Toilet Bowl -->
-	{#if toilet}
-		<div class="toiletParent">
-			
-			<img src="/toilet-banner.png" class="toilet-banner" alt="The Toilet Bowl" />
+	<!-- Divisions / Regular Season Section -->
+	<div class="mb-12">
+		<h4 class="text-center text-lg font-bold text-slate-400 uppercase tracking-wider mb-6">Division & Conference Honors</h4>
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			{#each divisions as division}
+				{#if division.rosterID}
+					<div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 text-center backdrop-blur-md shadow-xl flex flex-col items-center justify-between hover:border-slate-700 transition duration-300">
+						{#if division.name}
+							<h6 class="text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-4">{division.name} Division</h6>
+						{:else}
+							<h6 class="text-indigo-400 font-semibold text-sm uppercase tracking-wider mb-4">Regular Season Champion</h6>
+						{/if}
+						
+						<div class="relative w-20 h-20 my-2 cursor-pointer group" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: division.rosterID})}>
+							<div class="absolute -inset-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 opacity-40 blur group-hover:opacity-80 transition"></div>
+							<img src="{getAvatarFromTeamManagers(leagueTeamManagers, division.rosterID, year)}" class="relative w-20 h-20 rounded-full border-2 border-indigo-500/50 bg-slate-900 object-cover shadow-lg group-hover:scale-105 transition-transform" alt="{division.name} champion" />
+							<img src="/medal.png" class="absolute -bottom-1 -right-1 w-8 h-auto z-20 pointer-events-none filter drop-shadow" alt="medal" />
+						</div>
 
-			<div class="toiletBowl">
-				<img src="{getAvatarFromTeamManagers(leagueTeamManagers, toilet, year)}" class="toiletWinner clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: toilet})} alt="toilet bowl winner" />
-				<img src="/toilet-bowl-2.png" class="toilet" alt="toilet bowl" />
+						<div class="mt-4 cursor-pointer group w-full" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: division.rosterID})}>
+							<div class="py-2 px-4 bg-slate-950/60 border border-slate-800 rounded-xl group-hover:bg-slate-800 transition">
+								<span class="text-xs sm:text-sm font-bold text-white block truncate">{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, division.rosterID)}</span>
+							</div>
+						</div>
+					</div>
+				{/if}
+			{/each}
+		</div>
+	</div>
+
+	<!-- Toilet Bowl Section -->
+	{#if toilet}
+		<div class="bg-gradient-to-b from-slate-950/80 to-slate-900/90 border border-slate-900 rounded-3xl p-6 md:p-8 text-center shadow-xl backdrop-blur-xl">
+			<img src="/toilet-banner.png" class="w-1/2 max-w-[280px] mx-auto mb-6 opacity-90 filter drop-shadow" alt="The Toilet Bowl" />
+
+			<div class="relative w-[180px] h-[160px] mx-auto my-4">
+				<div class="absolute top-2 left-1/2 -translate-x-1/2 z-30 cursor-pointer group" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: toilet})}>
+					<div class="absolute -inset-1 rounded-full bg-slate-700 opacity-50 blur group-hover:opacity-100 transition"></div>
+					<img src="{getAvatarFromTeamManagers(leagueTeamManagers, toilet, year)}" class="relative w-14 h-14 rounded-full border-2 border-slate-600 bg-slate-900 object-cover shadow-xl group-hover:scale-105 transition-transform" alt="toilet bowl winner" />
+				</div>
+				<img src="/toilet-bowl-2.png" class="absolute w-full h-auto bottom-0 left-1/2 -translate-x-1/2 pointer-events-none opacity-80" alt="toilet bowl" />
 			</div>
-			<span class="genLabel clickable" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: toilet})}>{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, toilet)}</span>
+
+			<div class="inline-block mt-2 cursor-pointer group" onclick={() => gotoManager({year, leagueTeamManagers, rosterID: toilet})}>
+				<div class="px-5 py-2 bg-slate-900/90 border border-slate-800 rounded-xl shadow-lg backdrop-blur-md text-center transition group-hover:border-slate-700 group-hover:bg-slate-800">
+					<span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Toilet Bowl Winner</span>
+					<span class="block text-xs sm:text-sm font-bold text-white">{@html getNestedTeamNamesFromTeamManagers(leagueTeamManagers, year, toilet)}</span>
+				</div>
+			</div>
 		</div>
 	{/if}
 </div>
+
+<style>
+	:global(.curOwner) {
+		font-size: 0.75em;
+		color: #94a3b8;
+		font-style: italic;
+	}
+</style>

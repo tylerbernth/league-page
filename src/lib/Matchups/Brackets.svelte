@@ -1,137 +1,142 @@
 <script>
-    import { goto } from "$app/navigation";
-    import { onMount } from "svelte";
-    import Button, { Group, Label } from '@smui/button';
-    import BracketsColumn from "./BracketsColumn.svelte";
-    import Matchup from "./Matchup.svelte";
+	import Button, { Group, Label } from '@smui/button';
+	import BracketsColumn from "./BracketsColumn.svelte";
+	import Matchup from "./Matchup.svelte";
 
-    export let leagueTeamManagers, players, brackets, selection, queryWeek;
+	export let leagueTeamManagers, players, brackets, selection, year;
 
-    const {playoffsStart, champs, losers, numRosters} = brackets;
+	$: playoffsStart = brackets?.playoffsStart ?? 15;
+	$: numRosters = brackets?.numRosters ?? 0;
 
-    const champsBracket = champs.bracket;
-    const champsConsolations = champs.consolations;
+	let bracket = [];
+	let consolations = [];
+	let allMatches = [];
+	let selected = null;
 
-    const losersBracket = losers.bracket;
-    const losersConsolations = losers.consolations;
+	let el, top;
 
-    let bracket = [];
-    let consolations = [];
-    let allMatches = [];
+	// Normalize any Sleeper data shape into round columns: [ [round1Matches], [round2Matches] ]
+	const structureBracket = (inputData) => {
+		if (!inputData) return [];
 
-    let el, top;
+		// Extract raw list from potential wrapper objects
+		let list = inputData;
+		if (!Array.isArray(list)) {
+			list = inputData.bracket || inputData.champs || inputData.winners || [];
+		}
+		if (!Array.isArray(list) || !list.length) return [];
 
-    onMount(() => {
-        if(queryWeek && queryWeek > 0 && queryWeek < playoffsStart) {
-            goto(`/matchups?week=1`, {noscroll: true});
-            selection = 'regular';
-        } else {
-            goto(`/matchups?week=${playoffsStart}`, {noscroll: true});
-        }
-    })
+		// If it's already a 2D array, return it directly
+		if (Array.isArray(list[0])) return list;
 
-    const changeSelection = () => {
-        if(selection == 'losers') {
-            bracket = losersBracket;
-            consolations = losersConsolations;
-        } else {
-            bracket = champsBracket;
-            consolations = champsConsolations;
-        }
-        allMatches = []
-        for(const week of bracket) {
-            allMatches = [...allMatches, ...week]
-        }
-        for(const consolation of consolations) {
-            for(const week of consolation) {
-                allMatches = [...allMatches, ...week]
-            }
-        }
-        top = el?.getBoundingClientRect()?.top || 0;
-        setSelected(selection);
-    }
+		// Group flat list by round 'r'
+		const rounds = {};
+		for (const match of list) {
+			if (!match) continue;
+			const r = match.r || 1;
+			if (!rounds[r]) rounds[r] = [];
+			rounds[r].push(match);
+		}
 
-    $: changeSelection(selection);
+		return Object.keys(rounds).sort((a, b) => Number(a) - Number(b)).map(r => rounds[r]);
+	};
 
-    let selected;
+	$: {
+		const champsData = brackets?.champs ?? brackets?.winners ?? brackets ?? {};
+		const losersData = brackets?.losers ?? {};
 
-    const setSelected = (s) => {
-        selected = bracket[0]?.filter(mp => !mp.bye)[0][0].m || null;
-    }
+		if (selection === 'losers') {
+			bracket = structureBracket(losersData);
+			consolations = losersData?.consolations || [];
+		} else {
+			bracket = structureBracket(champsData);
+			consolations = champsData?.consolations || [];
+		}
 
-    let matchup, displayWeek;
-    const changeDisplay = (s) => {
-        top = el?.getBoundingClientRect()?.top || 0;
-        matchup = allMatches.filter(match => match[0].m == s)[0];
-        displayWeek = playoffsStart + matchup[0].r - 1;
-        window.scrollTo({left: 0, top, behavior: 'smooth'});
-    }
+		// Flatten for match detail view selection
+		let matches = [];
+		if (Array.isArray(bracket)) {
+			for (const col of bracket) {
+				if (Array.isArray(col)) matches = [...matches, ...col];
+			}
+		}
+		allMatches = matches;
 
-    let matchupWeek = 1;
+		// Set default selected match if none selected
+		if (!selected && allMatches.length > 0) {
+			const first = allMatches[0];
+			selected = Array.isArray(first) ? first[0]?.m : first?.m;
+		}
+	}
 
-    const changeMatchupGame = (week) => {
-        matchupWeek = week;
-    }
+	let matchup, displayWeek;
 
-    $: changeDisplay(selected);
+	const changeDisplay = (s) => {
+		if (!s || !allMatches.length) return;
+		top = el?.getBoundingClientRect()?.top || 0;
+		let foundMatch = allMatches.find(match => {
+			if (!match) return false;
+			if (Array.isArray(match)) return match[0]?.m == s;
+			return match?.m == s;
+		});
+
+		if (foundMatch) {
+			if (!Array.isArray(foundMatch)) {
+				foundMatch = [foundMatch];
+			}
+			matchup = foundMatch;
+			displayWeek = playoffsStart + (matchup[0]?.r || 1) - 1;
+		}
+	};
+
+	let matchupWeek = 1;
+
+	const changeMatchupGame = (w) => {
+		matchupWeek = w;
+	};
+
+	$: changeDisplay(selected);
 </script>
 
-<style>
-    .brackets {
-        margin: 2em 0 6em;
-    }
+<div class="w-full max-w-7xl mx-auto my-6 px-2 select-none font-sans">
+	{#if bracket && bracket.length > 0}
+		<div class="my-8 overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-slate-700">
+			<div class="flex justify-center min-w-max items-center overflow-visible gap-4 sm:gap-8">
+				{#each bracket as matchCol, ix}
+					<BracketsColumn bind:selected={selected} {leagueTeamManagers} {matchCol} {ix} {players} {playoffsStart} playoffLength={bracket.length} losers={selection == 'losers'} />
+				{/each}
+			</div>
 
-    .bracket {
-        margin: 1em 0;
-        display: flex;
-        justify-content: center;
-    }
+			{#each consolations as consolation, consolationNum}
+				<div class="flex justify-center min-w-max items-center mt-8 overflow-visible gap-4 sm:gap-8">
+					{#each structureBracket(consolation) as matchCol, ix}
+						<BracketsColumn bind:selected={selected} {leagueTeamManagers} {consolationNum} {matchCol} {ix} {players} {playoffsStart} playoffLength={consolation.length} {numRosters} consolation={true} losers={selection == 'losers'} />
+					{/each}
+				</div>
+			{/each}
+		</div>
+	{:else}
+		<div class="text-center py-16 text-slate-400 font-medium bg-slate-900/40 rounded-2xl border border-slate-800/60 max-w-xl mx-auto my-8">
+			<p class="text-lg text-slate-300 font-semibold mb-1">Playoff Bracket Not Ready</p>
+			<p class="text-sm text-slate-500">Bracket details will populate once playoff matchups are set by the league.</p>
+		</div>
+	{/if}
 
-    .matchupEnclosure {
-        padding: 2em 0;
-        margin-bottom: 2em;
-    }
-
-    .buttonHolder {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 3em 0;
-    }
-</style>
-
-<div class="brackets">
-    <div class="bracket">
-        {#each bracket as matchCol, ix}
-            <BracketsColumn bind:selected={selected} {leagueTeamManagers} {matchCol} {ix} {players} {playoffsStart} playoffLength={bracket.length} losers={selection == 'losers'} />
-        {/each}
-    </div>
-
-    {#each consolations as consolation, consolationNum}
-        <div class="bracket">
-            {#each consolation as matchCol, ix}
-                <BracketsColumn bind:selected={selected} {leagueTeamManagers} {consolationNum} {matchCol} {ix} {players} {playoffsStart} playoffLength={consolation.length} {numRosters} consolation={true} losers={selection == 'losers'} />
-            {/each}
-        </div>
-    {/each}
-</div>
-
-<div class="matchupEnclosure" bind:this={el}>
-    {#if matchup}
-        {#if matchup[0].starters[2] }
-            <div class="buttonHolder">
-                <Group variant="outlined">
-                    <!-- Regular Season -->
-                    <Button class="selectionButtons" onclick={() => changeMatchupGame(1)} variant="{matchupWeek == 1 ? "raised" : "outlined"}">
-                        <Label>First Week</Label>
-                    </Button>
-                    <!-- Championship Bracket -->
-                    <Button class="selectionButtons" onclick={() => changeMatchupGame(2)} variant="{matchupWeek == 2 ? "raised" : "outlined"}">
-                        <Label>Second Week</Label>
-                    </Button>
-                </Group>
-            </div>
-        {/if}
-        <Matchup ix={selected} active={selected} {matchup} {matchupWeek} {players} {displayWeek} expandOverride={true} {leagueTeamManagers} />
-    {/if}
+	<div class="mt-8 pt-4 border-t border-slate-800/80" bind:this={el}>
+		{#if matchup && matchup[0]}
+			{#if matchup[0]?.starters?.[2]}
+				<div class="flex justify-center my-6">
+					<Group variant="outlined" class="bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+						<Button class="selectionButtons" on:click={() => changeMatchupGame(1)} variant={matchupWeek == 1 ? "raised" : "outlined"}>
+							<Label>First Week</Label>
+						</Button>
+						<Button class="selectionButtons" on:click={() => changeMatchupGame(2)} variant={matchupWeek == 2 ? "raised" : "outlined"}>
+							<Label>Second Week</Label>
+						</Button>
+					</Group>
+				</div>
+			{/if}
+			<Matchup ix={selected} active={selected} {matchup} {matchupWeek} {players} {displayWeek} expandOverride={true} {leagueTeamManagers} {year} />
+		{/if}
+	</div>
 </div>

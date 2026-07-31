@@ -97,6 +97,11 @@
         display: block;
         position: relative;
         width: 100%;
+        padding: 2em 1em;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.02) 0%, rgba(6, 182, 212, 0.02) 100%);
+        border-radius: 12px;
+        border: 1px solid rgba(79, 70, 229, 0.1);
+        margin: 2em 0;
     }
 </style>
 

@@ -4,8 +4,8 @@
 
 // Svelte Colors!
 @use '@material/theme/index' as theme with (
-  $primary: #00316b,
-  $secondary: #0082c3,
+  $primary: #4F46E5,
+  $secondary: #06B6D4,
   $surface: #fff,
   $background: #fff,
   $error: color-palette.$red-900,
@@ -35,44 +35,44 @@
 :root {
   --fff: #fff;
   --fffTransparent: rgba(255,255,255,0);
-  --f8f8f8: #f8f8f8;
-  --f3f3f3: #f3f3f3;
-  --eee: #eee;
-  --ebebeb: #ebebeb;
-  --ddd: #ddd;
-  --d7d7d7: #d7d7d7;
-  --ccc: #ccc;
-  --bbb: #bbb;
-  --aaa: #aaa;
-  --g999: #999;
-  --g555: #555;
-  --g444: #444;
-  --g333: #333;
-  --g111: #111;
+  --f8f8f8: #F9FAFB;
+  --f3f3f3: #F3F4F6;
+  --eee: #E5E7EB;
+  --ebebeb: #E0E7FF;
+  --ddd: #D1D5DB;
+  --d7d7d7: #DBEAFE;
+  --ccc: #D4D4D8;
+  --bbb: #BFDBFE;
+  --aaa: #C7D2FE;
+  --g999: #9CA3AF;
+  --g555: #6B7280;
+  --g444: #4B5563;
+  --g333: #374151;
+  --g111: #1F2937;
   --g000: #000;
-  --boxShadowOne: #ccc;
-  --boxShadowTwo: #cacaca;
-  --boxShadowThree: #d4d4d4;
-  --ir: #ddd;
-  --champShadow: #555;
-  --transactHeader: #f5fcff;
-  --draftSwapped: #f8fcff;
-  --waiverAdd: #e9fff1;
-  --waiverDrop: #ffe9e9;
-  --bracketMatch: #fafeff;
+  --boxShadowOne: rgba(79, 70, 229, 0.1);
+  --boxShadowTwo: rgba(79, 70, 229, 0.05);
+  --boxShadowThree: rgba(79, 70, 229, 0.08);
+  --ir: #E5E7EB;
+  --champShadow: rgba(79, 70, 229, 0.2);
+  --transactHeader: #EEF2FF;
+  --draftSwapped: #F0F9FF;
+  --waiverAdd: #ECFDF5;
+  --waiverDrop: #FEF2F2;
+  --bracketMatch: #F8FAFC;
   --matchupSelected: #fff;
   --fadeOne: rgba(255, 255, 255, 0) 0%;
   --fadeTwo: rgba(255, 255, 255, 0.7) 50%;
   --fadeThree: rgba(255, 255, 255, 0.9) 90%;
   --fadeFour: rgba(255, 255, 255, 1) 100%;
-  --blueOne: #00316b;
-  --blueTwo: #0082c3;
-  --r1: #f7f9fd;
-  --r2: #fbf7f7;
-  --r3: #f7fbf7;
-  --headerPrimary: #ddedfa;
-  --borderOverride: rgba(0,0,0,.12);
-  --rivalryBack: #f8f8f8;
+  --blueOne: #4F46E5;
+  --blueTwo: #06B6D4;
+  --r1: #EEF2FF;
+  --r2: #F0F9FF;
+  --r3: #ECFDF5;
+  --headerPrimary: #CDE5FF;
+  --borderOverride: rgba(0,0,0,.08);
+  --rivalryBack: #F9FAFB;
 
   // Chart bar colors
   --barChartOne: #7fc4f5;
@@ -123,9 +123,9 @@ body {
   background-color: theme.$surface;
   color: theme.$on-surface;
   min-height: 100vh;
-  background: #f4f4f4;
-  background: linear-gradient(to bottom right, #f4f4f4,#ebebeb );
-  background: -webkit-linear-gradient(to bottom right, #f4f4f4,#ebebeb );
+  background: linear-gradient(135deg, #FFFFFF 0%, #F5F3FF 50%, #F0F9FF 100%);
+  background: -webkit-linear-gradient(135deg, #FFFFFF 0%, #F5F3FF 50%, #F0F9FF 100%);
+  background-attachment: fixed;
 }
  
 //

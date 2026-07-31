@@ -4,10 +4,10 @@
 
 // Svelte Colors!
 @use '@material/theme/index' as theme with (
-  $primary: #0082c3,
-  $secondary: #00316b,
-  $surface: #000000,
-  $background: #000000,
+  $primary: #06B6D4,
+  $secondary: #4F46E5,
+  $surface: #0F172A,
+  $background: #0F172A,
   $error: color-palette.$red-900,
 );
 
@@ -33,46 +33,46 @@
 @use '@material/typography/index' as typography;
 
 :root {
-  --fff: #000000;
-  --fffTransparent: rgba(0,0,0,0);
-  --f8f8f8: #070707;
-  --f3f3f3: #0d0d0d;
-  --eee: #1b1b1b;
-  --ebebeb: #333;
-  --ddd: #282828;
-  --d7d7d7: #171717;
-  --ccc: #444;
-  --bbb: #444;
-  --aaa: #555;
-  --g999: #666;
-  --g444: #bbb;
-  --g555: #aaa;
-  --g333: #ccc;
-  --g111: #eee;
+  --fff: #0F172A;
+  --fffTransparent: rgba(15,23,42,0);
+  --f8f8f8: #1E293B;
+  --f3f3f3: #334155;
+  --eee: #475569;
+  --ebebeb: #2D3E5F;
+  --ddd: #1E293B;
+  --d7d7d7: #1E3A4C;
+  --ccc: #64748B;
+  --bbb: #64748B;
+  --aaa: #94A3B8;
+  --g999: #94A3B8;
+  --g444: #CBD5E1;
+  --g555: #94A3B8;
+  --g333: #E2E8F0;
+  --g111: #F1F5F9;
   --g000: #fff;
-  --boxShadowOne: #070707;
-  --boxShadowTwo: #272727;
-  --boxShadowThree: #0d0d0d;
-  --ir: #222;
-  --champShadow: #111;
-  --transactHeader: #202424;
-  --draftSwapped: #202025;
-  --waiverAdd: #3e4741;
-  --waiverDrop: #423a3a;
-  --bracketMatch: #010102;
-  --matchupSelected: #2f2f35;
+  --boxShadowOne: rgba(6, 182, 212, 0.08);
+  --boxShadowTwo: rgba(6, 182, 212, 0.04);
+  --boxShadowThree: rgba(6, 182, 212, 0.06);
+  --ir: #1E293B;
+  --champShadow: rgba(6, 182, 212, 0.15);
+  --transactHeader: #1E293B;
+  --draftSwapped: #1E293B;
+  --waiverAdd: #164E4E;
+  --waiverDrop: #2F1F1F;
+  --bracketMatch: #1E293B;
+  --matchupSelected: #334155;
   --fadeOne: rgba(0, 0, 0, 0) 0%;
-  --fadeTwo: rgba(0, 0, 0, 0.7) 50%;
-  --fadeThree: rgba(0, 0, 0, 0.9) 90%;
-  --fadeFour: rgba(0, 0, 0, 1) 100%;
-  --blueOne: #0082c3;
-  --blueTwo: #003c86;
-  --r1: #1c1c1d;
-  --r2: #1f1d1d;
-  --r3: #181a18;
-  --headerPrimary: #2a2e31;
-  --borderOverride: rgba(255,255,255,.3);
-  --rivalryBack: #333;
+  --fadeTwo: rgba(0, 0, 0, 0.5) 50%;
+  --fadeThree: rgba(0, 0, 0, 0.7) 90%;
+  --fadeFour: rgba(0, 0, 0, 0.9) 100%;
+  --blueOne: #06B6D4;
+  --blueTwo: #4F46E5;
+  --r1: #1E293B;
+  --r2: #1E293B;
+  --r3: #192E3A;
+  --headerPrimary: #2D3A4F;
+  --borderOverride: rgba(255,255,255,.15);
+  --rivalryBack: #1E293B;
 
   // Chart bar colors
   --barChartOne: #446a88;
@@ -123,9 +123,9 @@ body {
   background-color: theme.$surface;
   color: theme.$on-surface;
   min-height: 100vh;
-  background: #222;
-  background: linear-gradient(to bottom right, #111,#222 );
-  background: -webkit-linear-gradient(to bottom right, #111,#222 );
+  background: linear-gradient(135deg, #1A1F35 0%, #2D2E4F 100%);
+  background: -webkit-linear-gradient(135deg, #1A1F35 0%, #2D2E4F 100%);
+  background-attachment: fixed;
 }
  
 //
