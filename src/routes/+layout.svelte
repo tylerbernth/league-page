@@ -16,7 +16,7 @@
 	<Nav />
 
 	<!-- Main Content Area: grows to fill remaining vertical space -->
-	<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+	<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pt-24 sm:pt-28">
 		<slot />
 	</main>
 
