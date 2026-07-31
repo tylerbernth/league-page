@@ -33,7 +33,7 @@
             <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
                 <img 
                     class="h-12 w-auto object-contain" 
-                    src="/{viewManager.rookieOrVets.toLowerCase()}.png" 
+                    src="/{viewManager.rookieOrVets}.png" 
                     alt="rookie or vet preference"
                     onerror={handleGenericImgError}
                 />
@@ -83,7 +83,7 @@
             <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-end justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
                 <img 
                     class="h-14 sm:h-18 w-auto object-cover" 
-                    src="https://sleepercdn.com/content/nfl/players/{viewManager.favoritePlayer}.jpg" 
+                    src="https://sleepercdn.com/content/nfl/players/thumb/{viewManager.favoritePlayer}.jpg" 
                     alt="favorite player"
                     onerror={handlePlayerImgError}
                 />
@@ -103,7 +103,7 @@
             <div class="mt-2 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-800 shadow-inner">
                 <img 
                     class="h-12 sm:h-16 w-auto object-contain" 
-                    src="/{viewManager.mode.toLowerCase().replace(/\s+/g, '-')}.png" 
+                    src="/{viewManager.mode}.png" 
                     alt="win now or rebuild"
                     onerror={handleGenericImgError}
                 />

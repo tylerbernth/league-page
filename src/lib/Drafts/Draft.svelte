@@ -1,11 +1,11 @@
 <script>
-  	import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
+    import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
 	import LinearProgress from '@smui/linear-progress';
     import { onMount } from 'svelte';
     import DraftRow from './DraftRow.svelte';
     import { gotoManager } from '$lib/utils/helper'
 	import { getAvatarFromTeamManagers, getTeamNameFromTeamManagers } from '$lib/utils/helperFunctions/universalFunctions';
-    
+	
     export let draftData, leagueTeamManagers, previous = false, year, players;
 
     const {draftOrder, draft, accuracy, reversalRound, draftType} = draftData;
@@ -92,7 +92,8 @@
 		border-radius: 50%;
         height: 30px;
         width: 30px;
-        margin: 0.4em 0;
+        margin: 0.4em auto;
+        display: block;
 		border: 0.25px solid #777;
 	}
 
@@ -137,4 +138,3 @@
         {/each}
     </Body>
 </DataTable>
-
