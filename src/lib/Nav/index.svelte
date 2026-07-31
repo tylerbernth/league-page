@@ -29,8 +29,10 @@
 
 <style>
 	.nav-header {
-		position: sticky;
+		position: fixed;
 		top: 0;
+		left: 0;
+		width: 100%;
 		z-index: 100;
 		/* Uses SMUI background variable so it automatically shifts between light and dark themes */
 		background-color: var(--fff, #ffffff);
