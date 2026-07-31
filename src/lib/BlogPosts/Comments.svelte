@@ -106,6 +106,24 @@
     .author {
         font-weight: 700;
     }
+
+    .comment-btn {
+        background: linear-gradient(135deg, var(--blueOne, #00316b) 0%, var(--blueTwo, #2563eb) 100%);
+        font-size: 1em;
+        border-radius: 8px;
+        text-decoration: none;
+        padding: 0.75em 1.5em;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+
+    .comment-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+    }
 </style>
 
 <Dialog
@@ -135,5 +153,12 @@
             <div class="date"><i>{parseDate(comment.sys.createdAt)}</i></div>
         </div>
     {/each}
+    
+    <div style="padding: 1.5em 2em;">
+        <button class="comment-btn" onclick={() => showWrite = !showWrite}>
+            {showWrite ? 'Cancel' : 'Add Comment'}
+        </button>
+    </div>
+
     <CreateComment bind:showWrite={showWrite} oncreateComment={addComment}/>
 </div>
