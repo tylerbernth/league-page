@@ -26,6 +26,11 @@ export const tabs = [
         key: 'blog',
     },
     {
+        icon: 'groups',
+        label: 'Managers',
+        dest: '/managers',
+    },
+    {
         icon: 'view_comfy',
         label: 'League Info',
         nest: true,
@@ -37,11 +42,6 @@ export const tabs = [
                 dest: '/rosters',
             },
             {
-                icon: 'groups',
-                label: 'Managers',
-                dest: '/managers',
-            },
-            {
                 icon: 'local_fire_department',
                 label: 'Rivalry',
                 dest: '/rivalry',
@@ -50,6 +50,11 @@ export const tabs = [
                 icon: 'leaderboard',
                 label: 'Standings',
                 dest: '/standings',
+            },
+            {
+                icon: 'bookmark',
+                label: 'Keepers',
+                dest: '/keepers',
             },
             {
                 icon: 'view_comfy',
@@ -77,11 +82,5 @@ export const tabs = [
                 dest: `https://sleeper.app/leagues/${leagueID}`,
             },
         ]
-    },
-    {
-        icon: 'lightbulb',
-        label: 'Resources',
-        dest: '/resources',
-        key: 'resources',
     },
 ];

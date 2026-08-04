@@ -1,11 +1,11 @@
 <script>
 	import LinearProgress from '@smui/linear-progress';
-    import {Manager} from '$lib/components';
+    import { Manager } from '$lib/components';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	export let data;
-	const {managers, manager, managersInfo} = data;
+	const { managers, manager, managersInfo, draftPicks } = data;
 
     onMount(() => {
         if(!managers.length) goto('/');
@@ -35,7 +35,17 @@
             </div>
         {:then [rostersData, leagueTeamManagers, leagueData, transactionsData, awards, records]}
             {#if managers.length && manager > -1}
-                <Manager {awards} {records} {manager} {managers} {rostersData} {leagueTeamManagers} rosterPositions={leagueData.roster_positions} {transactionsData} />
+                <Manager 
+                    {awards} 
+                    {records} 
+                    {manager} 
+                    {managers} 
+                    {rostersData} 
+                    {leagueTeamManagers} 
+                    rosterPositions={leagueData.roster_positions} 
+                    {transactionsData} 
+                    {draftPicks} 
+                />
             {/if}
         {:catch error}
             <!-- promise was rejected -->
