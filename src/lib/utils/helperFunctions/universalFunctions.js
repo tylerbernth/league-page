@@ -220,10 +220,17 @@ export const getAvatarFromTeamManagers = (teamManagers, rosterID, year) => {
 }
 
 export const getTeamNameFromTeamManagers = (teamManagers, rosterID, year) => {
-    if(!year || year > teamManagers.currentSeason) {
+    if (!teamManagers) return null;
+
+    if (!year || year > teamManagers.currentSeason) {
         year = teamManagers.currentSeason;
     }
-    return teamManagers.teamManagersMap[year][rosterID].team.name;
+
+    const roster = teamManagers.teamManagersMap?.[year]?.[rosterID];
+
+    if (!roster) return null;
+
+    return roster.team?.name || roster.teamName || null;
 }
 
 export const renderManagerNames = (teamManagers, rosterID, year) => {

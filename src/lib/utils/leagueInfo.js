@@ -101,7 +101,7 @@ export const managers = [
        "tookOver": 2025, // (DEPRECATED! You don't need to use this anymore) (optional) used if a manager took over a team, delete this line or change to null otherwise
        "location": null, // (optional)
        "bio": "His moniker is quite fitting, and his draft strategy followed suit, grabbing both Joe Burrow and Brock Purdy in the draft. Barista by day, and bartender by night, Aaron is a man of many talents, but it remains to be seen if managing a Fantasy Football team is one of them. Drafting two Broncos players back to back may be a stroke of genius or may be his downfall.",
-       "photo": "/managers/jackson.svg", // square ratio recommended (no larger than 500x500)
+       "photo": "/managers/jackson.png", // square ratio recommended (no larger than 500x500)
        "fantasyStart": null, // (optional) when did the manager start playing fantasy football
        "favoriteTeam": "sea", // (optional) favorite NFL team, (follows convention: nyj, sea, mia, etc.) MUST BE LOWERCASE
        "mode": "Win Now", // (optional) 'Win Now', 'Dynasty', or 'Rebuild' (anything else and you will need to add a new png to /static/ similar to the 'Rebuild.png' and 'Win Now.png' currently in there)
