@@ -12,7 +12,6 @@
 
   $: leagueSize = rosters && rosters.length > 0 ? rosters.length : 12;
 
-  // Check if draft picks exist and have been executed (non-empty draft or current year points present)
   $: hasDraftHappened = draftPicks && draftPicks.length > 0;
 
   function getExpectedPoints(pickNo) {
@@ -136,7 +135,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
       <div>
         <h2 class="text-base sm:text-lg font-bold tracking-tight text-white">
-          Draft Value Leaderboard
+          Draft Value Leaderboard{#if hasDraftHappened} <span class="text-xs font-normal text-slate-400">({new Date().getFullYear()})</span>{/if}
         </h2>
         <p class="text-xs text-slate-400 mt-0.5">Normalized 0–10 grading scale evaluating actual production vs. draft capital.</p>
       </div>
@@ -207,12 +206,11 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-slate-800/60 text-sm">
-        {#each sortedPicks as pick, index}
+        {#each sortedPicks as pick}
           <tr class="hover:bg-slate-800/30 transition-colors">
-            <!-- Sticky Pick Column -->
-            <td class="py-3 px-3 sm:px-4 font-mono text-xs text-slate-400 whitespace-nowrap align-middle sticky left-0 z-10 bg-slate-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)]">
-              <span class="text-white font-bold">#{index + 1}</span> 
-              <div class="text-[10px] text-slate-500 sm:inline sm:ml-1">R{Math.ceil(pick.pickNo / leagueSize)}.{(pick.pickNo - 1) % leagueSize + 1}</div>
+            <!-- Sticky Pick Column (Round.Pick format only) -->
+            <td class="py-3 px-3 sm:px-4 font-mono text-xs text-slate-300 font-medium whitespace-nowrap align-middle sticky left-0 z-10 bg-slate-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.5)]">
+              R{Math.ceil(pick.pickNo / leagueSize)}.{(pick.pickNo - 1) % leagueSize + 1}
             </td>
 
             <!-- Player Column -->
