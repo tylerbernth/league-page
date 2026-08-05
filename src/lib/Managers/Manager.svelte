@@ -5,6 +5,7 @@
     import Roster from '../Rosters/Roster.svelte';
     import TransactionsPage from '../Transactions/TransactionsPage.svelte';
     import ManagerKeepers from './ManagerKeepers.svelte';
+    import ManagerHeadToHead from '$lib/components/manager/ManagerHeadToHead.svelte';
     import { goto } from '$app/navigation';
     import ManagerFantasyInfo from './ManagerFantasyInfo.svelte';
     import ManagerAwards from './ManagerAwards.svelte';
@@ -16,7 +17,8 @@
 
     let transactions = transactionsData.transactions;
 
-    $: viewManager = managers[manager];$: datesActive = getDatesActive(leagueTeamManagers, viewManager.managerID);
+    $: viewManager = managers[manager];
+    $: datesActive = getDatesActive(leagueTeamManagers, viewManager.managerID);
 
     const startersAndReserve = rostersData.startersAndReserve;
     let rosters = rostersData.rosters;
@@ -32,7 +34,7 @@
     $: historicalTeamData = null;
     $: displayTeamName = getTeamNameFromTeamManagers(leagueTeamManagers, activeRosterID, activeYear);
 
-   // Filter keepers across all historical seasons by checking team ownership per year
+    // Filter keepers across all historical seasons by checking team ownership per year
     $: teamKeepers = (() => {
         if (!draftPicks || !viewManager?.managerID) return [];
 
@@ -253,6 +255,9 @@
         bind:selectedRosterID 
     />
 
+    <!-- All-Time Head-to-Head Records Component -->
+    <ManagerHeadToHead currentManagerId={viewManager.managerID} />
+
     <!-- Loading / Content Blocks -->
     {#if loading || fetchingHistoricalRoster}
         <div class="mx-auto my-20 w-[85%] max-w-lg text-center text-slate-400">
@@ -265,7 +270,7 @@
             <ManagerKeepers {teamKeepers} {players} />
         </div>
 
-        <!-- Team Roster Section (Force Centered Roster Component) -->
+        <!-- Team Roster Section -->
         <div class="mx-auto mb-16 w-full max-w-6xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-6 shadow-2xl backdrop-blur-md">
             <div class="mb-6 pb-4 border-b border-slate-800 text-center">
                 <h3 class="text-xl font-bold tracking-wide text-slate-100 sm:text-2xl">
@@ -308,7 +313,7 @@
                 <Label>All Managers</Label>
             </Button>
             <Button disabled={manager == managers.length - 1} class="selectionButtons" onclick={() => changeManager(parseInt(manager) + 1)} variant="outlined">
-                <Label>Label>Next Manager</Label>
+                <Label>Next Manager</Label>
             </Button>
         </Group>
     </div>

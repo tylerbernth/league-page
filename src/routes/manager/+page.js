@@ -1,3 +1,4 @@
+/// file: src/routes/manager/+page.js
 import {
     waitForAll,
     getLeagueRosters,
@@ -75,10 +76,11 @@ export async function load({ url }) {
         }
     }
 
-    const manager = url?.searchParams?.get('manager');
+    const managerParam = url?.searchParams?.get('manager');
+    const managerIndex = managerParam !== null ? parseInt(managerParam, 10) : -1;
 
     const props = {
-        manager: manager && manager < managersObj.length ? manager : -1,
+        manager: !isNaN(managerIndex) && managerIndex >= 0 && managerIndex < managersObj.length ? managerIndex : -1,
         managers: managersObj,
         managersInfo,
         draftPicks
