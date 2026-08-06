@@ -50,9 +50,9 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 w-full max-w-full overflow-hidden px-2 sm:px-0">
     <!-- Best Value Picks Section -->
     <div class="rounded-2xl border border-slate-700/50 bg-slate-900/85 p-3.5 sm:p-6 shadow-2xl backdrop-blur-md flex flex-col min-w-0">
-        <div class="mb-4 sm:mb-6 flex items-center gap-3 border-b border-slate-800 pb-3 sm:pb-4 overflow-hidden">
+        <div class="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 border-b border-slate-800 pb-3 sm:pb-4">
             <span class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 font-bold text-base sm:text-lg">✓</span>
-            <h3 class="text-lg sm:text-xl font-bold tracking-wide text-emerald-400 sm:text-2xl truncate">
+            <h3 class="text-base sm:text-xl font-bold tracking-wide text-emerald-400 sm:text-2xl leading-tight">
                 Best Value Picks
             </h3>
         </div>
@@ -90,11 +90,11 @@
                                 </div>
                                 <div class="text-[10px] sm:text-[11px] text-slate-400 flex flex-wrap items-center gap-x-1 sm:gap-x-1.5 gap-y-0.5 mt-0.5">
                                     <span class="font-semibold text-indigo-400">Pick #{pick.pickNumber}</span>
-                                    <span class="text-slate-650">•</span>
+                                    <span class="text-slate-600">•</span>
                                     <span class="font-medium text-slate-300">R{pick.round}</span>
-                                    <span class="text-slate-650">•</span>
+                                    <span class="text-slate-600">•</span>
                                     <span class="uppercase">{pick.team || 'FA'}</span>
-                                    <span class="text-slate-650">•</span>
+                                    <span class="text-slate-600">•</span>
                                     <span class="text-slate-500">{pick.season}</span>
                                 </div>
                             </div>
@@ -117,9 +117,9 @@
 
     <!-- Worst Value Picks Section -->
     <div class="rounded-2xl border border-slate-700/50 bg-slate-900/85 p-3.5 sm:p-6 shadow-2xl backdrop-blur-md flex flex-col min-w-0">
-        <div class="mb-4 sm:mb-6 flex items-center gap-3 border-b border-slate-800 pb-3 sm:pb-4 overflow-hidden">
+        <div class="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 border-b border-slate-800 pb-3 sm:pb-4">
             <span class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400 font-bold text-base sm:text-lg">✕</span>
-            <h3 class="text-lg sm:text-xl font-bold tracking-wide text-rose-400 sm:text-2xl truncate">
+            <h3 class="text-base sm:text-xl font-bold tracking-wide text-rose-400 sm:text-2xl leading-tight">
                 Worst Value Picks
             </h3>
         </div>
@@ -157,11 +157,11 @@
                                 </div>
                                 <div class="text-[10px] sm:text-[11px] text-slate-400 flex flex-wrap items-center gap-x-1 sm:gap-x-1.5 gap-y-0.5 mt-0.5">
                                     <span class="font-semibold text-indigo-400">Pick #{pick.pickNumber}</span>
-                                    <span class="text-slate-650">•</span>
+                                    <span class="text-slate-600">•</span>
                                     <span class="font-medium text-slate-300">R{pick.round}</span>
-                                    <span class="text-slate-650">•</span>
+                                    <span class="text-slate-600">•</span>
                                     <span class="uppercase">{pick.team || 'FA'}</span>
-                                    <span class="text-slate-650">•</span>
+                                    <span class="text-slate-600">•</span>
                                     <span class="text-slate-500">{pick.season}</span>
                                 </div>
                             </div>
