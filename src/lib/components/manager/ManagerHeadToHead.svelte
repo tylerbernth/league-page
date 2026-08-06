@@ -26,7 +26,7 @@
 </script>
 
 <div class="mx-auto mb-16 w-full max-w-6xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-6 shadow-2xl backdrop-blur-md">
-    <div class="mb-6 pb-4 border-b border-slate-800 flex items-center justify-between">
+    <div class="mb-6 pb-4 border-b border-slate-800 text-center">
         <div>
             <h3 class="text-xl font-bold tracking-tight text-slate-100">All-Time Head-to-Head Records</h3>
             <p class="text-xs text-slate-400 mt-1">Lifetime regular-season and playoff matchup history across all league years.</p>
@@ -47,8 +47,8 @@
             No historical matchup data found for this manager.
         </div>
     {:else}
-        <!-- Grid layout matching the style of Team Awards & Records cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Grid layout updated to max 5 items per row on large screens -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {#each headToHeadRecords as record}
                 {@const avgPf = record.totalGames ? (record.pf / record.totalGames).toFixed(1) : '0.0'}
                 {@const avgPa = record.totalGames ? (record.pa / record.totalGames).toFixed(1) : '0.0'}

@@ -74,7 +74,6 @@
         return n + (s[(v - 20) % 10] || s[v] || s[0]);
     };
 
-    // Calculate regular season standings ranks for middle teams (e.g. 5th and 6th place in a 10-team league)
     const getRegularSeasonStandingsRanks = (rostersMap) => {
         const rosterList = Object.values(rostersMap).map(r => {
             const wins = r.settings?.wins ?? 0;
@@ -90,7 +89,6 @@
             };
         });
 
-        // Sort by standard fantasy rules: Wins -> Ties -> Points For
         rosterList.sort((a, b) => {
             if (b.wins !== a.wins) return b.wins - a.wins;
             if (b.ties !== a.ties) return b.ties - a.ties;
@@ -105,9 +103,6 @@
         return standingsRanks;
     };
 
-    // Determines final overall placement (1st - Nth) for every roster in a season,
-    // combining winners-bracket results, losers-bracket ("toilet bowl") results,
-    // and regular-season standings for any teams that land in neither bracket.
     const calculateRanksFromBrackets = (winnersBracket, losersBracket, rostersMap, numRosters) => {
         const ranks = {};
         const rosterIds = Object.keys(rostersMap);
@@ -136,9 +131,6 @@
 
         let currentRank = 1;
 
-        // --- TIER 1: WINNERS BRACKET (1st-4th) ---
-        // Sleeper's "p" field on the winners bracket reliably equals the absolute
-        // final placement (p:1 -> 1st/2nd, p:3 -> 3rd/4th, etc).
         if (topTier.length > 0) {
             const tierRanks = [];
             for (let i = 0; i < topTier.length; i++) tierRanks.push(currentRank + i);
@@ -173,9 +165,6 @@
             currentRank += topTier.length;
         }
 
-        // --- TIER 2: MIDDLE TEAMS (e.g. 5th-6th) ---
-        // Teams that missed both the winners bracket and the toilet bowl get ranked
-        // by regular season standings.
         if (middleTier.length > 0) {
             const tierRanks = [];
             for (let i = 0; i < middleTier.length; i++) tierRanks.push(currentRank + i);
@@ -188,7 +177,6 @@
             currentRank += middleTier.length;
         }
 
-        // --- TIER 3: TOILET BOWL (e.g. 7th-10th) ---
         if (bottomTier.length > 0 && Array.isArray(losersBracket) && losersBracket.length > 0) {
             const teamResults = {};
             const roundNumbers = [];
@@ -234,7 +222,6 @@
                 })
                 .sort((a, b) => {
                     if (a.eliminationRound !== b.eliminationRound) {
-                        // earlier elimination in the toilet bowl means a better finish
                         return a.eliminationRound - b.eliminationRound;
                     }
                     if (a.winCount !== b.winCount) {
@@ -281,12 +268,8 @@
                     let finishRank = '-';
                     let numericRank = null;
 
-                    
-
                     const seasonBundle = allSeasons[year];
                     if (seasonBundle) {
-
-                        
                         const rosterInfo = seasonBundle.rosters[rID];
                         const numRosters = Object.keys(seasonBundle.rosters).length || 10;
                         const isPreSeason = seasonBundle.leagueStatus === 'pre_draft' || (seasonBundle.leagueStatus !== 'complete' && seasonBundle.matchups.every(w => w.length === 0));
@@ -309,24 +292,12 @@
 
                             const bracketRanks = calculateRanksFromBrackets(seasonBundle.winnersBracket, seasonBundle.losersBracket, seasonBundle.rosters, numRosters);
                             
-                            console.log("-----------");
-                            console.log("YEAR:", year);
-                            
-                            
-                            console.log("TEAM:", team.teamName);
-                            console.log("rID:", rID);
-                            console.log("Roster object:", seasonBundle.rosters[rID]);
-                            console.log("Bracket Rank:", bracketRanks[rID]);
-
                             let calculatedRank = '-';
                             if (bracketRanks[rID]) {
                                 calculatedRank = bracketRanks[rID];
                             } else {
                                 calculatedRank = numRosters; 
                             }
-
-                            console.log("Assigned Rank:", calculatedRank);
-
 
                             if (calculatedRank !== '-') {
                                 numericRank = Number(calculatedRank);
@@ -394,7 +365,8 @@
     }
 </script>
 
-<div class="mx-auto my-8 w-full max-w-5xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-6 shadow-2xl backdrop-blur-md">
+<!-- Updated max-w-6xl to match your other component widths -->
+<div class="mx-auto my-8 w-full max-w-6xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-6 shadow-2xl backdrop-blur-md">
     <div class="mb-6 pb-4 border-b border-slate-800 text-center">
         <h3 class="text-xl font-extrabold tracking-wider text-slate-100 sm:text-2xl uppercase">
             Season History

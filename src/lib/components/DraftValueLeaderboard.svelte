@@ -135,8 +135,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
       <div>
         <h2 class="text-base sm:text-lg font-bold tracking-tight text-white">
-          Draft Value Leaderboard{#if hasDraftHappened} <span class="text-xs font-normal text-slate-400">({new Date().getFullYear()})</span>{/if}
-        </h2>
+          Draft Value Leaderboard
         <p class="text-xs text-slate-400 mt-0.5">Normalized 0–10 grading scale evaluating actual production vs. draft capital.</p>
       </div>
     </div>

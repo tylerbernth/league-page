@@ -5,7 +5,7 @@
     import Roster from '../Rosters/Roster.svelte';
     import TransactionsPage from '../Transactions/TransactionsPage.svelte';
     import ManagerKeepers from './ManagerKeepers.svelte';
-    import ManagerHeadToHead from '$lib/components/manager/ManagerHeadToHead.svelte';
+    import ManagerDraftRankings from '$lib/components/manager/ManagerDraftRankings.svelte';    import ManagerHeadToHead from '$lib/components/manager/ManagerHeadToHead.svelte';
     import { goto } from '$app/navigation';
     import ManagerFantasyInfo from './ManagerFantasyInfo.svelte';
     import ManagerAwards from './ManagerAwards.svelte';
@@ -14,6 +14,9 @@
     import { getDatesActive, getRosterIDFromManagerID, getTeamNameFromTeamManagers } from '$lib/utils/helperFunctions/universalFunctions';
 
     export let manager, managers, rostersData, leagueTeamManagers, rosterPositions, transactionsData, awards, records, draftPicks = [];
+    export let allDraftsByYear = {};
+    export let playerPointsByYear = {};
+    export let rosterToUserMapByYear = {};
 
     let transactions = transactionsData.transactions;
 
@@ -268,6 +271,17 @@
         <!-- Keepers Section (Standalone Card) -->
         <div class="mx-auto mb-16 w-full max-w-6xl">
             <ManagerKeepers {teamKeepers} {players} />
+        </div>
+
+        <!-- All-Time Draft Value Extremes Component -->
+        <div class="mx-auto mb-16 w-full max-w-6xl">
+            <ManagerDraftRankings 
+                {allDraftsByYear} 
+                {playerPointsByYear} 
+                {managers} 
+                {rosterToUserMapByYear} 
+                selectedManagerId={viewManager.managerID} 
+            />
         </div>
 
         <!-- Team Roster Section -->
