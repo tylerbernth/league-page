@@ -267,11 +267,12 @@
                     let madePlayoffs = false;
                     let finishRank = '-';
                     let numericRank = null;
+                    let numRosters = 10;
 
                     const seasonBundle = allSeasons[year];
                     if (seasonBundle) {
                         const rosterInfo = seasonBundle.rosters[rID];
-                        const numRosters = Object.keys(seasonBundle.rosters).length || 10;
+                        numRosters = Object.keys(seasonBundle.rosters).length || 10;
                         const isPreSeason = seasonBundle.leagueStatus === 'pre_draft' || (seasonBundle.leagueStatus !== 'complete' && seasonBundle.matchups.every(w => w.length === 0));
 
                         if (rosterInfo && rosterInfo.settings) {
@@ -347,7 +348,8 @@
                         avgPf,
                         avgPa,
                         finish: finishRank,
-                        numericRank
+                        numericRank,
+                        numRosters
                     });
                 }
             }
@@ -365,7 +367,6 @@
     }
 </script>
 
-<!-- Updated max-w-6xl to match your other component widths -->
 <div class="mx-auto my-8 w-full max-w-6xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-6 shadow-2xl backdrop-blur-md">
     <div class="mb-6 pb-4 border-b border-slate-800 text-center">
         <h3 class="text-xl font-extrabold tracking-wider text-slate-100 sm:text-2xl uppercase">
@@ -458,6 +459,11 @@
                                 {:else if season.numericRank === 3}
                                     <span class="inline-flex px-3 py-1 items-center justify-center rounded-full bg-gradient-to-r from-amber-700 via-amber-600 to-amber-800 border border-amber-500 text-xs font-extrabold text-amber-100 shadow-md">
                                         {season.finish}
+                                    </span>
+                                {:else if season.numericRank === season.numRosters}
+                                    <span class="inline-flex px-3 py-1 items-center justify-center gap-1.5 rounded-full bg-amber-950/60 border border-amber-700/60 text-xs font-extrabold text-amber-300 shadow-inner">
+                                        <span>{season.finish}</span>
+                                        <span>🚽</span>
                                     </span>
                                 {:else}
                                     <span class="inline-flex px-3 py-1 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200 shadow-inner">

@@ -7,7 +7,11 @@
 	const nflState = getNflState();
 	const podiumsData = getAwards();
 	const leagueTeamManagersData = getLeagueTeamManagers();
+
+	let innerWidth;
 </script>
+
+<svelte:window bind:innerWidth={innerWidth} />
 
 <div class="flex flex-col lg:flex-row gap-8 w-full max-w-7xl mx-auto my-4">
 	<!-- MAIN CONTENT AREA (Left Column) -->
@@ -33,6 +37,52 @@
 					</div>
 				{/if}
 			</div>
+		</section>
+
+		<!-- Manager Profiles Grid Section -->
+		<section class="rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl">
+			<h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white uppercase border-b border-slate-800 pb-3 mb-6 text-center">
+				Manager Profiles
+			</h2>
+			
+			{#await leagueTeamManagersData}
+				<div class="flex flex-col items-center justify-center py-8">
+					<p class="text-sm font-medium text-slate-400 mb-2">Loading managers...</p>
+					<LinearProgress indeterminate />
+				</div>
+			{:then leagueTeamManagers}
+				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
+					{#each managers as manager, key}
+						{@const currentYear = leagueTeamManagers.currentYear}
+						<div 
+							class="group flex flex-col items-center w-full bg-slate-800/40 hover:bg-slate-800/80 border border-slate-700/40 hover:border-blue-500/50 rounded-2xl p-4 transition-all duration-200 cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-1"
+							on:click={() => {
+								gotoManager({year: currentYear, leagueTeamManagers, managerID: manager.managerID});
+							}}
+						>
+							<!-- Manager Image Box with subtle background ring & glowing border on hover -->
+							<div class="relative w-20 h-20 sm:w-24 sm:h-24 mb-3 rounded-full bg-slate-900/80 p-1 border-2 border-slate-700 group-hover:border-blue-400 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center justify-center overflow-hidden shrink-0">
+								{#if manager.photo}
+									<img 
+										src="{manager.photo}" 
+										alt="{manager.name}" 
+										class="w-full h-full object-cover rounded-full" 
+									/>
+								{:else}
+									<span class="text-xl font-bold text-slate-400">{manager.name?.slice(0, 2).toUpperCase()}</span>
+								{/if}
+							</div>
+
+							<!-- Manager Name: Allows wrapping onto multiple lines so nothing gets cut off -->
+							<span class="text-xs sm:text-sm font-bold text-slate-200 group-hover:text-blue-400 text-center tracking-wide transition-colors w-full leading-tight min-h-[2.5rem] flex items-center justify-center">
+								{manager.name}
+							</span>
+						</div>
+					{/each}
+				</div>
+			{:catch error}
+				<p class="text-xs text-red-400 text-center">Failed to load managers: {error.message}</p>
+			{/await}
 		</section>
 
 		<!-- Power Rankings Section -->
