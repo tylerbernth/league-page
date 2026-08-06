@@ -367,7 +367,7 @@
     }
 </script>
 
-<div class="mx-auto my-8 w-full max-w-6xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-6 shadow-2xl backdrop-blur-md">
+<div class="mx-auto my-8 w-full max-w-6xl rounded-2xl border border-slate-700/50 bg-slate-900/85 p-4 sm:p-6 shadow-2xl backdrop-blur-md">
     <div class="mb-6 pb-4 border-b border-slate-800 text-center">
         <h3 class="text-xl font-extrabold tracking-wider text-slate-100 sm:text-2xl uppercase">
             Season History
@@ -383,7 +383,8 @@
             No historical season records found for this manager.
         </div>
     {:else}
-        <div class="overflow-x-auto">
+        <!-- Desktop Table View -->
+        <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-center border-collapse">
                 <thead>
                     <tr class="border-b border-slate-800 text-xs font-bold tracking-wider text-slate-400 uppercase">
@@ -391,8 +392,8 @@
                         <th class="py-3 px-4 text-left">Team Name</th>
                         <th class="py-3 px-4 text-center" colspan="3">Record</th>
                         <th class="py-3 px-4 text-center">Playoffs</th>
-                        <th class="py-3 px-4 text-center">Avg Pts</th>
-                        <th class="py-3 px-4 text-center">Pts Ag</th>
+                        <th class="py-3 px-4 text-center">PF</th>
+                        <th class="py-3 px-4 text-center">PA</th>
                         <th class="py-3 px-4 text-center">Finish</th>
                     </tr>
                 </thead>
@@ -475,6 +476,93 @@
                     {/each}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="block md:hidden space-y-4">
+            {#each historicalSeasons as season}
+                <div class="rounded-xl border border-slate-800 bg-slate-800/40 p-4 space-y-3 shadow-md">
+                    <!-- Top Bar: Year & Finish -->
+                    <div class="flex items-center justify-between">
+                        <span class="inline-flex items-center justify-center rounded-xl border border-indigo-500/30 bg-indigo-950/90 px-3 py-1 text-xs font-bold text-indigo-300 shadow-inner">
+                            {season.year}
+                        </span>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-400 font-medium">Finish:</span>
+                            {#if season.numericRank === 1}
+                                <span class="inline-flex px-3 py-1 items-center justify-center rounded-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 border border-yellow-200 text-xs font-extrabold text-slate-950 shadow-md">
+                                    {season.finish}
+                                </span>
+                            {:else if season.numericRank === 2}
+                                <span class="inline-flex px-3 py-1 items-center justify-center rounded-full bg-gradient-to-r from-slate-300 via-slate-100 to-slate-300 border border-slate-300 text-xs font-extrabold text-slate-900 shadow-md">
+                                    {season.finish}
+                                </span>
+                            {:else if season.numericRank === 3}
+                                <span class="inline-flex px-3 py-1 items-center justify-center rounded-full bg-gradient-to-r from-amber-700 via-amber-600 to-amber-800 border border-amber-500 text-xs font-extrabold text-amber-100 shadow-md">
+                                    {season.finish}
+                                </span>
+                            {:else if season.numericRank === season.numRosters}
+                                <span class="inline-flex px-3 py-1 items-center justify-center gap-1.5 rounded-full bg-amber-950/60 border border-amber-700/60 text-xs font-extrabold text-amber-300 shadow-inner">
+                                    <span>{season.finish}</span>
+                                    <span>🚽</span>
+                                </span>
+                            {:else}
+                                <span class="inline-flex px-3 py-1 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200 shadow-inner">
+                                    {season.finish}
+                                </span>
+                            {/if}
+                        </div>
+                    </div>
+
+                    <!-- Team Name & Avatar -->
+                    <div class="flex items-center gap-3 pt-1 border-t border-slate-800/80">
+                        {#if season.avatar}
+                            <img class="h-9 w-9 shrink-0 rounded-full border border-slate-700 object-cover shadow" src={season.avatar} alt={season.name} />
+                        {:else}
+                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-xs font-bold text-slate-400 shadow">
+                                {season.name.charAt(0)}
+                            </div>
+                        {/if}
+                        <span class="font-bold text-slate-100 truncate text-sm">{season.name}</span>
+                    </div>
+
+                    <!-- Stats Grid (4 columns now including Points Against) -->
+                    <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-800/80 text-center text-xs">
+                        <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-400 mb-1">Record</div>
+                            <div class="font-bold">
+                                <span class="text-emerald-400">{season.wins}</span>-<span class="text-rose-400">{season.losses}</span>{#if season.ties > 0}<span class="text-amber-400">-{season.ties}</span>{/if}
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-400 mb-1">Playoffs</div>
+                            <div class="flex justify-center">
+                                {#if season.madePlayoffs}
+                                    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs">
+                                        ✓
+                                    </span>
+                                {:else}
+                                    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px]">
+                                        ✕
+                                    </span>
+                                {/if}
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-400 mb-1">PF</div>
+                            <div class="font-mono text-slate-200 font-semibold">{season.avgPf}</div>
+                        </div>
+
+                        <div class="bg-slate-900/50 p-2 rounded-lg border border-slate-800/60">
+                            <div class="text-slate-400 mb-1">PA</div>
+                            <div class="font-mono text-slate-300 font-semibold">{season.avgPa}</div>
+                        </div>
+                    </div>
+                </div>
+            {/each}
         </div>
     {/if}
 </div>
