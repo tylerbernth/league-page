@@ -26,11 +26,6 @@ export const tabs = [
         key: 'blog',
     },
     {
-        icon: 'groups',
-        label: 'Managers',
-        dest: '/managers',
-    },
-    {
         icon: 'view_comfy',
         label: 'League Info',
         nest: true,
@@ -60,6 +55,11 @@ export const tabs = [
                 icon: 'view_comfy',
                 label: 'Drafts',
                 dest: '/drafts',
+            },
+            {
+                icon: 'show_chart',
+                label: 'Draft Rankings',
+                dest: '/draft-rankings',
             },
             {
                 icon: 'emoji_events',
