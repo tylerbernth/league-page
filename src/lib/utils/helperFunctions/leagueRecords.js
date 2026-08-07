@@ -9,6 +9,104 @@ import { getManagers, round, sortHighAndLow } from './universalFunctions';
 import { Records } from '$lib/utils/dataClasses';
 import { getBrackets } from './leagueBrackets';
 import { browser } from '$app/environment';
+import { getLeagueTeamManagers } from './leagueTeamManagers';
+import { managers as managersObj } from '$lib/utils/leagueInfo';
+
+/**
+ * Computes individual manager career highlights (Blowouts, Worst Losses, High/Low Scores)
+ * from processed matchup differentials and roster mappings.
+ */
+const computeManagerCareerHighlights = (matchupDifferentials, leagueTeamManagerData, managerRecords) => {
+    if (!matchupDifferentials || !managerRecords) return managerRecords;
+
+    const getMgrId = (year, rosterID) => {
+        return leagueTeamManagerData?.teamManagersMap?.[year]?.[rosterID]?.managers?.[0] || null;
+    };
+
+    const getTeamLabel = (mgrId, rosterID, year) => {
+        if (mgrId) {
+            const userObj = leagueTeamManagerData?.users?.[mgrId];
+            if (userObj?.display_name) return userObj.display_name;
+            const found = managersObj.find(m => m.managerID === mgrId);
+            if (found) return found.name;
+        }
+        return `Roster ${rosterID}`;
+    };
+
+    for (const key in managerRecords) {
+        managerRecords[key].biggestBlowout = { margin: 0, opponent: '', year: '', week: '' };
+        managerRecords[key].worstLoss = { margin: 0, opponent: '', year: '', week: '' };
+        managerRecords[key].highScore = { score: 0, opponent: '', year: '', week: '' };
+        managerRecords[key].lowScore = { score: 9999, opponent: '', year: '', week: '' };
+    }
+
+    const findRecordRef = (mgrId, rosterID) => {
+        if (mgrId && managerRecords[mgrId]) return managerRecords[mgrId];
+        if (rosterID && managerRecords[rosterID]) return managerRecords[rosterID];
+        for (const k in managerRecords) {
+            if (managerRecords[k]?.rosterID === rosterID) return managerRecords[k];
+        }
+        return null;
+    };
+
+    for (const match of matchupDifferentials) {
+        const { year, week, home, away, differential } = match;
+        const homeMgrId = getMgrId(year, home.rosterID);
+        const awayMgrId = getMgrId(year, away.rosterID);
+
+        const homeOpponentName = getTeamLabel(awayMgrId, away.rosterID, year);
+        const awayOpponentName = getTeamLabel(homeMgrId, home.rosterID, year);
+
+        const isHomeWinner = home.fpts >= away.fpts;
+        const winner = isHomeWinner ? home : away;
+        const loser = isHomeWinner ? away : home;
+        const winnerMgrId = isHomeWinner ? homeMgrId : awayMgrId;
+        const loserMgrId = isHomeWinner ? awayMgrId : homeMgrId;
+
+        const homeRec = findRecordRef(homeMgrId, home.rosterID);
+        const awayRec = findRecordRef(awayMgrId, away.rosterID);
+        const winnerRec = findRecordRef(winnerMgrId, winner.rosterID);
+        const loserRec = findRecordRef(loserMgrId, loser.rosterID);
+
+        // 1. Check High / Low Scores
+        if (homeRec) {
+            if (home.fpts > (homeRec.highScore?.score || 0)) {
+                homeRec.highScore = { score: home.fpts, opponent: homeOpponentName, year, week };
+            }
+            if (home.fpts < (homeRec.highScore?.score === 0 ? 9999 : (homeRec.lowScore?.score || 9999))) {
+                homeRec.lowScore = { score: home.fpts, opponent: homeOpponentName, year, week };
+            }
+        }
+        if (awayRec) {
+            if (away.fpts > (awayRec.highScore?.score || 0)) {
+                awayRec.highScore = { score: away.fpts, opponent: awayOpponentName, year, week };
+            }
+            if (away.fpts < (awayRec.highScore?.score === 0 ? 9999 : (awayRec.lowScore?.score || 9999))) {
+                awayRec.lowScore = { score: away.fpts, opponent: awayOpponentName, year, week };
+            }
+        }
+
+        // 2. Check Biggest Blowout & Worst Loss
+        if (winnerRec) {
+            if (differential > (winnerRec.biggestBlowout?.margin || 0)) {
+                winnerRec.biggestBlowout = { margin: differential, opponent: winner === home ? homeOpponentName : awayOpponentName, year, week };
+            }
+        }
+        if (loserRec) {
+            if (differential > (loserRec.worstLoss?.margin || 0)) {
+                loserRec.worstLoss = { margin: differential, opponent: loser === home ? homeOpponentName : awayOpponentName, year, week };
+            }
+        }
+    }
+
+    for (const key in managerRecords) {
+        if (managerRecords[key].lowScore?.score === 9999) {
+            managerRecords[key].lowScore.score = 0;
+        }
+    }
+
+    return managerRecords;
+};
 
 /**
  * getLeagueRecords obtains all the record for a league since it was first created
@@ -16,263 +114,233 @@ import { browser } from '$app/environment';
  * @returns {Object} { allTimeBiggestBlowouts, allTimeClosestMatchups, leastSeasonLongPoints, mostSeasonLongPoints, leagueWeekLows, leagueWeekHighs, seasonWeekRecords, leagueManagerRecords, currentYear, lastYear}
  */
 export const getLeagueRecords = async (refresh = false) => {
-	// records temporarily cached for an individual session
-	if(get(records).leagueWeekHighs) {
-		return get(records);
-	}
+    if(get(records).leagueWeekHighs) {
+        return get(records);
+    }
 
-	// if this isn't a refresh data call, check if there are already
-	// transactions stored in localStorage (long term)
-	if(!refresh && browser) {
-		let localRecords = await JSON.parse(localStorage.getItem("records"));
-		// check if transactions have been saved to localStorage before
-		if(localRecords && localRecords.playoffData) {
-			localRecords.stale = true;
-			return localRecords;
-		}
-	}
+    if(!refresh && browser) {
+        let localRecords = await JSON.parse(localStorage.getItem("records"));
+        if(localRecords && localRecords.playoffData) {
+            localRecords.stale = true;
+            return localRecords;
+        }
+    }
 
-	// get info about the current NFL season (week and season type)
-	const nflState = await getNflState().catch((err) => { console.error(err); });
-	let week = 0;
-	if(nflState.season_type == 'regular') {
-		week = nflState.week - 1;
-	} else if(nflState.season_type == 'post') {
-		week = 18;
-	}
+    const nflState = await getNflState().catch((err) => { console.error(err); });
+    let week = 0;
+    if(nflState.season_type == 'regular') {
+        week = nflState.week - 1;
+    } else if(nflState.season_type == 'post') {
+        week = 18;
+    }
 
-	// initiate current season to be your current
-	// league page leagueID
-	let curSeason = leagueID;
+    let curSeason = leagueID;
+    let currentYear;
+    let lastYear;
 
-	// currentYear will eventually be assigned as the most recent year
-	// that has record information (current season if past week 1,
-	// previous season if not)
-	let currentYear;
+    let regularSeason = new Records();
+    let playoffRecords = new Records();
 
-	// lastYear gets updated as it loops through each season, so that
-	// it will eventually be set to the last year that records exist
-	let lastYear;
+    let leagueTeamManagers = await getLeagueTeamManagers().catch(err => console.error(err));
 
-	// regularSeason is a Records class that stores all the data
-	// necessary to display regular season records
-	let regularSeason = new Records();
+    while(curSeason && curSeason != 0) {
+        const [rosterRes, leagueData] = await waitForAll(
+            getLeagueRosters(curSeason),
+            getLeagueData(curSeason),
+        ).catch((err) => { console.error(err); });
 
-	// playoffRecords is a Records class that stores all the data
-	// necessary to display playoff records
-	let playoffRecords = new Records();
+        const rosters = rosterRes.rosters;
 
-	// loop through each season until the previous_league_id becomes null (or in some cases 0)
-	while(curSeason && curSeason != 0) {
-		const [rosterRes, leagueData] = await waitForAll(
-			getLeagueRosters(curSeason),
-			getLeagueData(curSeason),
-		).catch((err) => { console.error(err); });
+        if(leagueData.status == 'complete' || week > leagueData.settings.playoff_week_start - 1) {
+            week = leagueData.settings.playoff_week_start - 1;
+        }
 
-		const rosters = rosterRes.rosters;
+        const {
+            season,
+            year,
+        } = await processRegularSeason({leagueData, rosters, curSeason, week, regularSeason})
 
-		// on first run, week is provided above from nflState,
-		// after that get the final week of regular season from leagueData
-		if(leagueData.status == 'complete' || week > leagueData.settings.playoff_week_start - 1) {
-			week = 99; // set it high
-		}
+        const pS = await processPlayoffs({year, curSeason, week, playoffRecords, rosters})
 
-		// regular season data
-		const {
-			season,
-			year,
-		} = await processRegularSeason({leagueData, rosters, curSeason, week, regularSeason})
+        if(pS) {
+            playoffRecords = pS; 
+        }
 
-		// post season data
-		const pS = await processPlayoffs({year, curSeason, week, playoffRecords, rosters})
+        lastYear = year;
 
-		if(pS) {
-			playoffRecords = pS; // update the regular season records
-		}
+        if(!currentYear && year) {
+            currentYear = year;
+        }
 
-		lastYear = year;
+        curSeason = season;
+    }
 
-		if(!currentYear && year) {
-			currentYear = year;
-		}
+    playoffRecords.currentYear = regularSeason.currentYear;
+    playoffRecords.lastYear = regularSeason.lastYear;
 
-		curSeason = season;
-	}
+    regularSeason.finalizeAllTimeRecords({currentYear, lastYear});
+    playoffRecords.finalizeAllTimeRecords({currentYear, lastYear});
+    
+    const regularSeasonData = regularSeason.returnRecords();
+    const playoffData = playoffRecords.returnRecords();
 
-	playoffRecords.currentYear = regularSeason.currentYear;
-	playoffRecords.lastYear = regularSeason.lastYear;
+    let managerRecordsMap = regularSeasonData?.leagueManagerRecords || regularSeasonData?.managerRecords || regularSeasonData?.managers || regularSeasonData;
 
-	regularSeason.finalizeAllTimeRecords({currentYear, lastYear});
-	playoffRecords.finalizeAllTimeRecords({currentYear, lastYear});
-	
-	const regularSeasonData = regularSeason.returnRecords()
-	const playoffData = playoffRecords.returnRecords()
+    if ((!managerRecordsMap || Object.keys(managerRecordsMap).length === 0) && regularSeason.managerRecords) {
+        managerRecordsMap = regularSeason.managerRecords;
+    }
 
-	const recordsData = {regularSeasonData, playoffData};
+    if (managerRecordsMap && typeof managerRecordsMap === 'object') {
+        for (const mId in managerRecordsMap) {
+            const mRecord = managerRecordsMap[mId];
+            const wins = mRecord.wins || mRecord.W || 0;
+            const losses = mRecord.losses || mRecord.L || 0;
+            const ties = mRecord.ties || mRecord.T || 0;
+            const totalGames = wins + losses + ties;
+
+            if (mRecord.fptsFor && totalGames > 0 && !mRecord.avgScore) {
+                mRecord.avgScore = mRecord.fptsFor / totalGames;
+            } else if (!mRecord.avgScore) {
+                mRecord.avgScore = mRecord.fptsPerGame || 0;
+            }
+
+            if (mRecord.fptsAgainst && totalGames > 0 && !mRecord.avgPtsAg) {
+                mRecord.avgPtsAg = mRecord.fptsAgainst / totalGames;
+            } else if (!mRecord.avgPtsAg) {
+                mRecord.avgPtsAg = mRecord.fptsAgainstPerGame || 0;
+            }
+
+            mRecord.biggestBlowout = mRecord.biggestBlowout || { margin: 0, opponent: '', year: '', week: '' };
+            mRecord.worstLoss = mRecord.worstLoss || { margin: 0, opponent: '', year: '', week: '' };
+            mRecord.highScore = mRecord.highScore || { score: 0, opponent: '', year: '', week: '' };
+            mRecord.lowScore = mRecord.lowScore || { score: 0, opponent: '', year: '', week: '' };
+        }
+    }
+
+    if (leagueTeamManagers && managerRecordsMap) {
+        computeManagerCareerHighlights(regularSeason.allTimeMatchupDifferentials || [], leagueTeamManagers, managerRecordsMap);
+    }
+
+    const recordsData = {regularSeasonData, playoffData};
 
     if(browser) {
-        // update localStorage
         localStorage.setItem("records", JSON.stringify(recordsData));
-    
         records.update(() => recordsData);
     }
 
-	return recordsData;
+    return recordsData;
 }
 
-/**
- * processes a regular season by calling Sleeper APIs to get the data fro a season and turn
- * it into league records (both season records and all-time records)
- * @param {Object} regularSeasonInfo an object with the function arguments needed to process a regular season
- * @param {Object[]} regularSeasonInfo.rosters the rosters of the league that year
- * @param {Object} regularSeasonInfo.leagueData the basic info for the league that season
- * @param {string} regularSeasonInfo.curSeason the league ID of the current season
- * @param {int} regularSeasonInfo.week the week to start analyzing (most recently completed week)
- * @param {Records} regularSeasonInfo.regularSeason the global regularSeason record object
- * @returns {Object} { season: (curSeason), year}
- */
 const processRegularSeason = async ({rosters, leagueData, curSeason, week, regularSeason}) => {
-	let year = parseInt(leagueData.season);
+    let year = parseInt(leagueData.season);
 
-	// on first run, week is provided above from nflState,
-	// after that get the final week of regular season from leagueData
-	if(leagueData.status == 'complete' || week > leagueData.settings.playoff_week_start - 1) {
-		week = leagueData.settings.playoff_week_start - 1;
-	}
+    if(leagueData.status == 'complete' || week > leagueData.settings.playoff_week_start - 1) {
+        week = leagueData.settings.playoff_week_start - 1;
+    }
 
-	for(const rosterID in rosters) {
-		analyzeRosters({year, roster: rosters[rosterID], regularSeason});
-	}
+    for(const rosterID in rosters) {
+        analyzeRosters({year, roster: rosters[rosterID], regularSeason});
+    }
 
-	// loop through each week of the season
-	const matchupsPromises = [];
-	let startWeek = parseInt(week);
-	while(week > 0) {
-		matchupsPromises.push(fetch(`https://api.sleeper.app/v1/league/${curSeason}/matchups/${week}`, {compress: true}))
-		week--;
-	}
+    const matchupsPromises = [];
+    let fetchWeek = parseInt(week);
+    while(fetchWeek > 0) {
+        matchupsPromises.push(fetch(`https://api.sleeper.app/v1/league/${curSeason}/matchups/${fetchWeek}`, {compress: true}))
+        fetchWeek--;
+    }
 
-	const matchupsRes = await waitForAll(...matchupsPromises).catch((err) => { console.error(err); });
+    const matchupsRes = await waitForAll(...matchupsPromises).catch((err) => { console.error(err); });
 
-	// convert the json matchup responses
-	const matchupsJsonPromises = [];
-	for(const matchupRes of matchupsRes) {
-		const data = matchupRes.json();
-		matchupsJsonPromises.push(data)
-		if (!matchupRes.ok) {
-			console.error(data);
-		}
-	}
-	const matchupsData = await waitForAll(...matchupsJsonPromises).catch((err) => { console.error(err); });
+    const matchupsJsonPromises = [];
+    for(const matchupRes of matchupsRes) {
+        const data = matchupRes.json();
+        matchupsJsonPromises.push(data)
+        if (!matchupRes.ok) {
+            console.error(data);
+        }
+    }
+    const matchupsData = await waitForAll(...matchupsJsonPromises).catch((err) => { console.error(err); });
 
-	// now that we've used the current season ID for everything we need, set it to the previous season
-	curSeason = leagueData.previous_league_id;
+    curSeason = leagueData.previous_league_id;
 
-	let seasonPointsRecord = [];
-	let matchupDifferentials = [];
-	
-	// process all the matchups
-	for(const matchupWeek of matchupsData) {
-		const {sPR, mD, sW} =  processMatchups({matchupWeek, seasonPointsRecord, record: regularSeason, startWeek, matchupDifferentials, year})
-		seasonPointsRecord = sPR;
-		matchupDifferentials = mD;
-		startWeek = sW;
-	}
+    let seasonPointsRecord = [];
+    let matchupDifferentials = [];
+    
+    // Process weeks cleanly in descending order matching the fetch sequence
+    let currentWeekNum = parseInt(week);
+    for(const matchupWeek of matchupsData) {
+        const {sPR, mD} = processMatchups({
+            matchupWeek, 
+            seasonPointsRecord, 
+            record: regularSeason, 
+            weekNum: currentWeekNum, 
+            matchupDifferentials, 
+            year
+        });
+        seasonPointsRecord = sPR;
+        matchupDifferentials = mD;
+        currentWeekNum--;
+    }
 
-	// sort matchup differentials
-	const [biggestBlowouts, closestMatchups] = sortHighAndLow(matchupDifferentials, 'differential')
+    const [biggestBlowouts, closestMatchups] = sortHighAndLow(matchupDifferentials, 'differential')
+    const [seasonPointsHighs, seasonPointsLows] = sortHighAndLow(seasonPointsRecord, 'fpts')
 
-	// sort season point records
-	const [seasonPointsHighs, seasonPointsLows] = sortHighAndLow(seasonPointsRecord, 'fpts')
+    regularSeason.addAllTimeMatchupDifferentials(matchupDifferentials);
 
-	// add matchupDifferentials to tha all time  records
-	regularSeason.addAllTimeMatchupDifferentials(matchupDifferentials);
+    if(seasonPointsHighs.length > 0) {
+        regularSeason.addSeasonWeekRecord({
+            year,
+            biggestBlowouts,
+            closestMatchups,
+            seasonPointsLows,
+            seasonPointsHighs,
+        });
+    } else {
+        year = null;
+    }
 
-
-	if(seasonPointsHighs.length > 0) {
-		regularSeason.addSeasonWeekRecord({
-			year,
-			biggestBlowouts,
-			closestMatchups,
-			seasonPointsLows,
-			seasonPointsHighs,
-		});
-	} else {
-		year = null;
-	}
-
-	return {
-		season: curSeason,
-		year,
-	}
+    return {
+        season: curSeason,
+        year,
+    }
 }
 
-
-/**
- * Analyzes an individual roster and adds entries for that roster's
- * individual records as well as updating the league season long points.
- * @param {Object} rosterData the roster data to be analyzed
- * @param {int} rosterData.year the year being analyzed
- * @param {Object} rosterData.roster the roster being analyzed
- * @param {Records} rosterData.regularSeason the global regularSeason object that will be updated and returned
- */
 const analyzeRosters = ({year, roster, regularSeason}) => {
-    // team name and logo are tied to the ownerID
     const rosterID = roster.roster_id;
-
     const managers = getManagers(roster);
 
-	// season hasn't started, no records to obtain
-	if(roster.settings.wins == 0 && roster.settings.ties == 0 && roster.settings.losses == 0) return;
+    if(roster.settings.wins == 0 && roster.settings.ties == 0 && roster.settings.losses == 0) return;
 
-	// fptsFor and fptsPerGame are used for both rosterRecords and seasonLongPoints
-	const fptsFor = roster.settings.fpts + (roster.settings.fpts_decimal / 100);
-	const fptsPerGame = round(fptsFor / (roster.settings.wins + roster.settings.losses + roster.settings.ties));
+    const fptsFor = roster.settings.fpts + (roster.settings.fpts_decimal / 100);
+    const fptsPerGame = round(fptsFor / (roster.settings.wins + roster.settings.losses + roster.settings.ties));
 
-	const rosterRecords = {
-		wins:  roster.settings.wins,
-		losses:  roster.settings.losses,
-		ties:  roster.settings.ties,
-		fptsFor,
-		fptsAgainst:  roster.settings.fpts_against + (roster.settings.fpts_against_decimal / 100),
-		fptsPerGame,
-		potentialPoints:  roster.settings.ppts + (roster.settings.ppts_decimal / 100),
-		rosterID,
-		year,
-	}
+    const rosterRecords = {
+        wins:  roster.settings.wins,
+        losses:  roster.settings.losses,
+        ties:  roster.settings.ties,
+        fptsFor,
+        fptsAgainst:  roster.settings.fpts_against + (roster.settings.fpts_against_decimal / 100),
+        fptsPerGame,
+        potentialPoints:  roster.settings.ppts + (roster.settings.ppts_decimal / 100),
+        rosterID,
+        year,
+    }
 
-	// update the roster records for this roster ID
-	regularSeason.updateManagerRecord(managers, rosterRecords);
+    regularSeason.updateManagerRecord(managers, rosterRecords);
 
-	// add season long points entry
-	regularSeason.addSeasonLongPoints({
-		rosterID,
-		fpts: fptsFor,
-		fptsPerGame,
-		year,
-	});
+    regularSeason.addSeasonLongPoints({
+        rosterID,
+        fpts: fptsFor,
+        fptsPerGame,
+        year,
+    });
 }
 
-/**
- * Processes the matchups for a given week of a season. Calculates weekly points,
- * differentials, and adds the points to the season-long points
- * @param {Object} matchupData the data needed to process a matchup
- * @param {Object[]} matchupData.matchupWeek the week being analyzed
- * @param {Object[]} matchupData.seasonPointsRecord
- * @param {Records} matchupData.record
- * @param {int} matchupData.startWeek
- * @param {Object[]} matchupData.matchupDifferentials
- * @param {int} matchupData.year
- * @returns {any}
- */
-const processMatchups = ({matchupWeek, seasonPointsRecord, record, startWeek, matchupDifferentials, year}) => {
-	let matchups = {};
+const processMatchups = ({matchupWeek, seasonPointsRecord, record, weekNum, matchupDifferentials, year}) => {
+    let matchups = {};
+    let pSD = {};
 
-	// only used when building post season record
-	let pSD = {};
-
-	for(const matchup of matchupWeek) {
-        // exit if there's no roster ID
+    for(const matchup of matchupWeek) {
         const rosterID = matchup.roster_id;
         if(!rosterID) continue;
 
@@ -304,50 +372,45 @@ const processMatchups = ({matchupWeek, seasonPointsRecord, record, startWeek, ma
         const entry = {
             rosterID,
             fpts: matchup.points,
-            week: startWeek,
+            week: weekNum,
             year,
         }
 
-        // add each entry to the matchup object
         if(!matchups[mID]) {
             matchups[mID] = [];
         }
         matchups[mID].push(entry);
         record.addLeagueWeekRecord(entry);
         seasonPointsRecord.push(entry);
-	}
-	startWeek--;
+    }
 
-	// create matchup differentials from matchups obj
-	for(const matchupKey in matchups) {
-		const matchup = matchups[matchupKey];
-		let home = matchup[0];
-		let away = matchup[1];
+    for(const matchupKey in matchups) {
+        const matchup = matchups[matchupKey];
+        let home = matchup[0];
+        let away = matchup[1];
 
-        // if there are no teams or only one, continue
         if(!away || !home) continue;
         
-		if(home.fpts < away.fpts) {
-			home = matchup[1];
-			away = matchup[0];
-		}
-		const matchupDifferential = {
-			year: home.year,
-			week: home.week,
-			home: {
-				rosterID: home.rosterID,
-				fpts: home.fpts,
-			},
-			away: {
-				rosterID: away.rosterID,
-				fpts: away.fpts,
-			},
-			differential: home.fpts - away.fpts
-		}
-		matchupDifferentials.push(matchupDifferential);
+        if(home.fpts < away.fpts) {
+            home = matchup[1];
+            away = matchup[0];
+        }
+        const matchupDifferential = {
+            year: home.year,
+            week: home.week, // Explicitly bound to entry week
+            home: {
+                rosterID: home.rosterID,
+                fpts: home.fpts,
+            },
+            away: {
+                rosterID: away.rosterID,
+                fpts: away.fpts,
+            },
+            differential: home.fpts - away.fpts
+        }
+        matchupDifferentials.push(matchupDifferential);
 
-		// handle post-season data
-		if(matchupKey.split(":")[0] == "PS") {
+        if(matchupKey.split(":")[0] == "PS") {
             pSD[home.rosterID].wins = 1;
             pSD[home.rosterID].fptsFor = home.fpts;
             pSD[home.rosterID].fptsAgainst = away.fpts;
@@ -355,153 +418,142 @@ const processMatchups = ({matchupWeek, seasonPointsRecord, record, startWeek, ma
             pSD[away.rosterID].losses = 1;
             pSD[away.rosterID].fptsFor = away.fpts;
             pSD[away.rosterID].fptsAgainst = home.fpts;
-		}
-	}
+        }
+    }
 
-	return {
-		sPR: seasonPointsRecord,
-		mD: matchupDifferentials,
-		sW: startWeek,
-		pSD
-	}
+    return {
+        sPR: seasonPointsRecord,
+        mD: matchupDifferentials,
+        pSD
+    }
 }
 
 const processPlayoffs = async ({curSeason, playoffRecords, year, week, rosters}) => {
-	const {
+    const {
         playoffsStart,
         playoffRounds,
         champs,
     } = await getBrackets(curSeason);
 
-	if(week <= playoffsStart || !year) {
-		return null;
-	}
+    if(week <= playoffsStart || !year) {
+        return null;
+    }
 
-	let seasonPointsRecord = [];
-	let matchupDifferentials = [];
-	let postSeasonData = {};
+    let seasonPointsRecord = [];
+    let matchupDifferentials = [];
+    let postSeasonData = {};
 
-	// process all the championship matches
-	const champBracket = digestBracket({bracket: champs.bracket, playoffsStart, matchupDifferentials, postSeasonData, playoffRecords, playoffRounds, consolation: false, seasonPointsRecord, year});
+    const champBracket = digestBracket({bracket: champs.bracket, playoffsStart, matchupDifferentials, postSeasonData, playoffRecords, playoffRounds, consolation: false, seasonPointsRecord, year});
 
-	postSeasonData = champBracket.postSeasonData;
-	seasonPointsRecord = champBracket.seasonPointsRecord;
-	playoffRecords = champBracket.playoffRecords;
-	matchupDifferentials = champBracket.matchupDifferentials;
+    postSeasonData = champBracket.postSeasonData;
+    seasonPointsRecord = champBracket.seasonPointsRecord;
+    playoffRecords = champBracket.playoffRecords;
+    matchupDifferentials = champBracket.matchupDifferentials;
 
-	// process all the consolation matches
-	const consolationBracket = digestBracket({bracket: champs.consolations, playoffsStart, matchupDifferentials, postSeasonData, playoffRecords, playoffRounds, consolation: true, seasonPointsRecord, year});
+    const consolationBracket = digestBracket({bracket: champs.consolations, playoffsStart, matchupDifferentials, postSeasonData, playoffRecords, playoffRounds, consolation: true, seasonPointsRecord, year});
 
-	postSeasonData = consolationBracket.postSeasonData;
-	seasonPointsRecord = consolationBracket.seasonPointsRecord;
-	playoffRecords = consolationBracket.playoffRecords;
-	matchupDifferentials = consolationBracket.matchupDifferentials;
+    postSeasonData = consolationBracket.postSeasonData;
+    seasonPointsRecord = consolationBracket.seasonPointsRecord;
+    playoffRecords = consolationBracket.playoffRecords;
+    matchupDifferentials = consolationBracket.matchupDifferentials;
 
-	for(const rosterID in postSeasonData) {
-		const pSD = postSeasonData[rosterID];
-		const fptsPerGame = round(pSD.fptsFor / (pSD.wins + pSD.losses + pSD.ties));
-		pSD.fptsPerGame = fptsPerGame;
-		pSD.year = year;
-		pSD.rosterID = rosterID;
+    for(const rosterID in postSeasonData) {
+        const pSD = postSeasonData[rosterID];
+        const fptsPerGame = round(pSD.fptsFor / (pSD.wins + pSD.losses + pSD.ties));
+        pSD.fptsPerGame = fptsPerGame;
+        pSD.year = year;
+        pSD.rosterID = rosterID;
 
-		// add season long points entry
-		playoffRecords.addSeasonLongPoints({
-			fpts: pSD.fptsFor,
-			fptsPerGame,
-			year,
-			rosterID: rosterID,
-		})
+        playoffRecords.addSeasonLongPoints({
+            fpts: pSD.fptsFor,
+            fptsPerGame,
+            year,
+            rosterID: rosterID,
+        })
 
-		// update the manager records for this roster ID
         const managers = getManagers(rosters[rosterID]);
-		playoffRecords.updateManagerRecord(managers, pSD);
-	}
+        playoffRecords.updateManagerRecord(managers, pSD);
+    }
 
-	// sort matchup differentials
-	const [biggestBlowouts, closestMatchups] = sortHighAndLow(matchupDifferentials, 'differential')
+    const [biggestBlowouts, closestMatchups] = sortHighAndLow(matchupDifferentials, 'differential')
+    const [seasonPointsHighs, seasonPointsLows] = sortHighAndLow(seasonPointsRecord, 'fpts')
 
-	// sort season point records
-	const [seasonPointsHighs, seasonPointsLows] = sortHighAndLow(seasonPointsRecord, 'fpts')
+    playoffRecords.addAllTimeMatchupDifferentials(matchupDifferentials);
 
-	// add matchupDifferentials to the all time records
-	playoffRecords.addAllTimeMatchupDifferentials(matchupDifferentials);
-
-
-	if(seasonPointsHighs.length > 0) {
-		playoffRecords.addSeasonWeekRecord({
-			year,
-			biggestBlowouts,
-			closestMatchups,
-			seasonPointsLows,
-			seasonPointsHighs,
-		});
-	}
-	
-	return playoffRecords;
+    if(seasonPointsHighs.length > 0) {
+        playoffRecords.addSeasonWeekRecord({
+            year,
+            biggestBlowouts,
+            closestMatchups,
+            seasonPointsLows,
+            seasonPointsHighs,
+        });
+    }
+    
+    return playoffRecords;
 }
 
 const digestBracket = ({bracket, playoffRecords, playoffRounds, matchupDifferentials, postSeasonData, consolation, seasonPointsRecord, playoffsStart, year}) => {
-	for(let i = 0; i < bracket.length; i++) {
-		const startWeek = getStartWeek(i + (playoffRounds - bracket.length), playoffRounds, consolation, playoffsStart);
-		const matchupWeek = [];
+    for(let i = 0; i < bracket.length; i++) {
+        const weekNum = getStartWeek(i + (playoffRounds - bracket.length), playoffRounds, consolation, playoffsStart);
+        const matchupWeek = [];
 
-		for(let matchups of bracket[i]) {
-			if(consolation) {
-				// consolation matchups are nested within an additional array, we need to flatten them before proceeding
-				matchups.flat();
-			}
-			for(const matchup of matchups) {
-				if(matchup.r) {
-					const newMatchup = {...matchup}
-					let points = 0;
-					for(const k in newMatchup.points) {
-						points += newMatchup.points[k].reduce((t, nV) => t + nV, 0);
-					}
-					newMatchup.points = points;
-					matchupWeek.push(newMatchup);
-				}
-			}
-		}
-		const {sPR, mD, pSD} =  processMatchups({matchupWeek, seasonPointsRecord, record: playoffRecords, startWeek, matchupDifferentials, year})
+        for(let matchups of bracket[i]) {
+            if(consolation) {
+                matchups.flat();
+            }
+            for(const matchup of matchups) {
+                if(matchup.r) {
+                    const newMatchup = {...matchup}
+                    let points = 0;
+                    for(const k in newMatchup.points) {
+                        points += newMatchup.points[k].reduce((t, nV) => t + nV, 0);
+                    }
+                    newMatchup.points = points;
+                    matchupWeek.push(newMatchup);
+                }
+            }
+        }
+        const {sPR, mD, pSD} = processMatchups({matchupWeek, seasonPointsRecord, record: playoffRecords, weekNum, matchupDifferentials, year})
 
-		postSeasonData = meshPostSeasonData(postSeasonData, pSD);
+        postSeasonData = meshPostSeasonData(postSeasonData, pSD);
 
-		seasonPointsRecord = sPR;
-		matchupDifferentials = mD;
-	}
+        seasonPointsRecord = sPR;
+        matchupDifferentials = mD;
+    }
 
-	return {postSeasonData, seasonPointsRecord, playoffRecords, matchupDifferentials}
+    return {postSeasonData, seasonPointsRecord, playoffRecords, matchupDifferentials}
 }
 
 const meshPostSeasonData = (postSeasonData, pSD) => {
-	for(const key in pSD) {
-		if(!postSeasonData[key]) {
-			postSeasonData[key] = pSD[key];
-			continue;
-		}
-		for(const k in pSD[key]) {
-			if(k == 'manager') continue;
-			postSeasonData[key][k] += pSD[key][k];
-		}
-	}
+    for(const key in pSD) {
+        if(!postSeasonData[key]) {
+            postSeasonData[key] = pSD[key];
+            continue;
+        }
+        for(const k in pSD[key]) {
+            if(k == 'manager') continue;
+            postSessionData[key][k] += pSD[key][k];
+        }
+    }
 
-	return postSeasonData;
+    return postSeasonData;
 }
 
 const getStartWeek = (i, playoffRounds, consolation, playoffsStart) => {
-	if (consolation) {
-		return `(C) Week ${playoffsStart + i}`;
-	}
+    if (consolation) {
+        return `(C) Week ${playoffsStart + i}`;
+    }
 
-	switch (playoffRounds - i) {
-		case 1:
-			return "Finals";
-		case 2:
-			return "Semi-Finals"
-		case 3:
-			return "Quarter-Finals"
-	
-		default:
-			return "Qualifiers";
-	}
+    switch (playoffRounds - i) {
+        case 1:
+            return "Finals";
+        case 2:
+            return "Semi-Finals"
+        case 3:
+            return "Quarter-Finals"
+    
+        default:
+            return "Qualifiers";
+    }
 }

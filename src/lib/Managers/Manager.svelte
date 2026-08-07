@@ -5,7 +5,9 @@
     import Roster from '../Rosters/Roster.svelte';
     import TransactionsPage from '../Transactions/TransactionsPage.svelte';
     import ManagerKeepers from './ManagerKeepers.svelte';
-    import ManagerDraftRankings from '$lib/components/manager/ManagerDraftRankings.svelte';    import ManagerHeadToHead from '$lib/components/manager/ManagerHeadToHead.svelte';
+    import ManagerDraftRankings from '$lib/components/manager/ManagerDraftRankings.svelte';    
+    import ManagerHeadToHead from '$lib/components/manager/ManagerHeadToHead.svelte';
+    import ManagerCareerStats from '$lib/components/manager/ManagerCareerStats.svelte';
     import { goto } from '$app/navigation';
     import ManagerFantasyInfo from './ManagerFantasyInfo.svelte';
     import ManagerAwards from './ManagerAwards.svelte';
@@ -249,6 +251,9 @@
 
     <!-- Manager Awards & Record Book -->
     <ManagerAwards {leagueTeamManagers} tookOver={viewManager.tookOver} {awards} {records} rosterID={activeRosterID} managerID={viewManager.managerID} />
+
+    <!-- Career Stats Grid -->
+    <ManagerCareerStats managerID={viewManager.managerID} {managers} {records} {leagueTeamManagers} />
 
     <!-- Franchise History Timeline -->
     <ManagerHistory 

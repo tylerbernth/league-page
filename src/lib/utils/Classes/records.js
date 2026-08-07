@@ -2,39 +2,27 @@ import { sortHighAndLow } from '../helperFunctions/universalFunctions';
 
 /** this holds all the data and the functions necessary to compute a league's records (both per season, as well as for all-time) */
 export class Records {
-	/**
-	 * Builds a Records object that holds all the data and the functions necessary to compute a league's records (both per season, as well as for all-time).
-     * 
-     * Can be used for both regular season, as well as playoff records.
-	 */
-	constructor() { // constructor returns empty records block
-		this.leagueManagerRecords = {}; // holds the all-time stats for each manager in the league
-		this.leagueRosterRecords = {}; // holds the per season stats for each roster (for each year)
-		this.seasonWeekRecords = []; // highest weekly points within a single season
-		this.leagueWeekRecords = []; // keeps track of weekly points in all seasons combined
-		this.seasonLongPoints = []; // keeps track of season long points
-		this.allTimeMatchupDifferentials = []; // the difference in scores for every matchup (for all years combined)
+    constructor() { 
+        this.leagueManagerRecords = {}; 
+        this.leagueRosterRecords = {}; 
+        this.seasonWeekRecords = []; 
+        this.leagueWeekRecords = []; 
+        this.seasonLongPoints = []; 
+        this.allTimeMatchupDifferentials = []; 
 
-		this.allTimeBiggestBlowouts = [];
-		this.allTimeClosestMatchups = [];
-		this.leastSeasonLongPoints = [];
-		this.mostSeasonLongPoints = [];
-		this.leagueWeekLows = [];
-		this.leagueWeekHighs = [];
+        this.allTimeBiggestBlowouts = [];
+        this.allTimeClosestMatchups = [];
+        this.leastSeasonLongPoints = [];
+        this.mostSeasonLongPoints = [];
+        this.leagueWeekLows = [];
+        this.leagueWeekHighs = [];
 
-		this.currentYear = null;
-		this.lastYear = null;
-	}
+        this.currentYear = null;
+        this.lastYear = null;
+    }
 }
 
-// Class functions to help build league records below
-
-/**
- * Check if a manger record exists for a given manager ID and, if not, create one.
- * @param {int} managerID
- */
 Records.prototype.confirmManagerRecord = function(managerID) {
-    // if no leagueManagerRecord exists for a manager, create one
     if(!this.leagueManagerRecords[managerID]) {
         this.leagueManagerRecords[managerID] = {
             wins: 0,
@@ -46,16 +34,15 @@ Records.prototype.confirmManagerRecord = function(managerID) {
             pOGames: 0,
             byes: 0,
             playoffAppearances: 0,
+            biggestBlowout: { margin: 0, opponent: '', year: '', week: '' },
+            worstLoss: { margin: 0, opponent: '', year: '', week: '' },
+            highScore: { score: 0, opponent: '', year: '', week: '' },
+            lowScore: { score: 9999, opponent: '', year: '', week: '' },
         }
     }
 }
 
-/**
- * Check if a roster record exists for a given roster ID and, if not, create one.
- * @param {int} rosterID
- */
 Records.prototype.confirmRosterRecord = function(rosterID) {
-    // if no leagueRosterRecords exists for a roster, create one
     if(!this.leagueRosterRecords[rosterID]) {
         this.leagueRosterRecords[rosterID] = {
             years: []
@@ -63,29 +50,10 @@ Records.prototype.confirmRosterRecord = function(rosterID) {
     }
 }
 
-
-/**
- * Update the internal leagueManagerRecords for a given roster ID
- * @param {Object[]} managers array of managers that need this record attached
- * @param {Object} recordsData
- * @param {any} recordsData.team
- * @param {number} recordsData.year
- * @param {number} recordsData.wins
- * @param {number} recordsData.losses
- * @param {number} recordsData.ties
- * @param {number} recordsData.fptsPerGame
- * @param {number} recordsData.fptsFor
- * @param {number} recordsData.fptsAgainst
- * @param {number} recordsData.potentialPoints
- * @param {number} recordsData.pOGames
- * @param {number} recordsData.byes
- */
 Records.prototype.updateManagerRecord = function(managers, {rosterID, year, wins, losses, ties, fptsPerGame, fptsFor, fptsAgainst, potentialPoints, pOGames, byes}) {
-    // check that a roster record has already been started for a given roster ID
     for(const managerID of managers) {
         this.confirmManagerRecord(managerID);
 
-        // add all-time data
         this.leagueManagerRecords[managerID].wins += wins;
         this.leagueManagerRecords[managerID].losses += losses;
         this.leagueManagerRecords[managerID].ties += ties;
@@ -95,110 +63,156 @@ Records.prototype.updateManagerRecord = function(managers, {rosterID, year, wins
         this.leagueManagerRecords[managerID].pOGames += pOGames;
         this.leagueManagerRecords[managerID].byes += byes;
         this.leagueManagerRecords[managerID].playoffAppearances ++;
+        
+        this.leagueManagerRecords[managerID]._rosterIDs = this.leagueManagerRecords[managerID]._rosterIDs || new Set();
+        this.leagueManagerRecords[managerID]._rosterIDs.add(rosterID);
     }
     
     this.confirmRosterRecord(rosterID);
-    // add the single season data
     this.leagueRosterRecords[rosterID].years.push({
-        wins,
-        losses,
-        ties,
-        fpts: fptsFor,
-        fptsAgainst,
-        fptsPerGame,
-        potentialPoints,
-        pOGames,
-        byes,
-        rosterID,
-        year,
+        wins, losses, ties, fpts: fptsFor, fptsAgainst, fptsPerGame,
+        potentialPoints, pOGames, byes, rosterID, year,
     });
 }
 
-
-/**
- * add an entry to the seasonLongPoints array
- * @param {Object} recordData
- * @param {Object[]} recordData.rosterID
- * @param {float} recordData.fpts
- * @param {float} recordData.fptsPerGame
- * @param {int} recordData.year
- * @param {Object} recordData.team
- */
 Records.prototype.addSeasonLongPoints = function({rosterID, fpts, fptsPerGame, year}) {
-    this.seasonLongPoints.push({
-        rosterID,
-        fpts,
-        fptsPerGame,
-        year,
-    });
+    this.seasonLongPoints.push({ rosterID, fpts, fptsPerGame, year });
 }
 
-
-/**
- * Add an entry to the leagueWeekRecord array.
- * 
- * The leagueWeekRecord is used to compute the highest and lowest scoring weeks of all-time.
- * @param {Object} entry
- */
 Records.prototype.addLeagueWeekRecord = function(entry) {
     this.leagueWeekRecords.push(entry);
 }
 
-
-/**
- * Add matchupDifferentials to the allTimeMatchupDifferentials array.
- * 
- * The allTimeMatchupDifferentials is used to compute the biggest blowouts and narrowest victories of all-time.
- * @param {Object[]} matchupDifferentials
- */
 Records.prototype.addAllTimeMatchupDifferentials = function(matchupDifferentials) {
     this.allTimeMatchupDifferentials = this.allTimeMatchupDifferentials.concat(matchupDifferentials);
 }
 
-
-/**
- * Adds an entry to the seasonWeekRecords array.
- * 
- * The seasonWeekRecords is an array of objects that contain the biggest blowouts, narrowest
- * victories, highest scoring weekly performances, and lowest scoring weekly performances for a given year.
- * @param {Object} entry
- */
 Records.prototype.addSeasonWeekRecord = function(entry) {
-    this.seasonWeekRecords.push(entry)
+    this.seasonWeekRecords.push(entry);
 }
 
 /**
- * Once all data has been gathered, finalizeAllTimeRecords will compute the allTimeBiggestBlowouts, allTimeClosestMatchups,
- * leagueWeekHighs, leagueWeekLows, mostSeasonLongPoints, and leastSeasonLongPoints as well as adding the current season managers,
- * currentYear, and lastYear to the records Class
- * @param {int} currentYear
- * @param {int} lastYear
+ * Computes individual manager career highlights from all-time match differentials.
  */
- Records.prototype.finalizeAllTimeRecords = function({currentYear, lastYear}) {
-    // sort allTimeMatchupDifferentials and return the biggest blowouts and narrowest victories
+Records.prototype.computeManagerHighlights = function() {
+    const rosterToMgr = {};
+    for(const mId in this.leagueManagerRecords) {
+        const mgr = this.leagueManagerRecords[mId];
+        if(mgr._rosterIDs) {
+            for(const rId of mgr._rosterIDs) {
+                rosterToMgr[rId] = mId;
+            }
+        }
+    }
+
+    const findWeek = (year, rosterID, score) => {
+        const targetRoster = String(rosterID);
+        const targetYear = String(year);
+        const searchArrays = [this.seasonWeekRecords, this.leagueWeekRecords];
+
+        for (const arr of searchArrays) {
+            if (!arr || !arr.length) continue;
+            const found = arr.find(sw => {
+                const swYear = String(sw.year || sw.season);
+                const swRoster = String(sw.rosterID || sw.roster_id || sw.roster);
+                const swScore = Number(sw.fpts ?? sw.score ?? 0);
+                
+                return swYear === targetYear && 
+                       swRoster === targetRoster && 
+                       Math.abs(swScore - score) < 0.01;
+            });
+            if (found && (found.week !== undefined && found.week !== null && found.week !== '')) {
+                return found.week;
+            }
+        }
+        return '';
+    };
+
+    for(const match of this.allTimeMatchupDifferentials) {
+        const { year, home, away, differential } = match;
+        const homeMgrId = rosterToMgr[home.rosterID];
+        const awayMgrId = rosterToMgr[away.rosterID];
+
+        const isHomeWinner = home.fpts >= away.fpts;
+        const winner = isHomeWinner ? home : away;
+        const loser = isHomeWinner ? away : home;
+        const winnerMgrId = isHomeWinner ? homeMgrId : awayMgrId;
+        const loserMgrId = isHomeWinner ? awayMgrId : homeMgrId;
+
+        const homeRec = this.leagueManagerRecords[homeMgrId];
+        const awayRec = this.leagueManagerRecords[awayMgrId];
+        const winnerRec = this.leagueManagerRecords[winnerMgrId];
+        const loserRec = this.leagueManagerRecords[loserMgrId];
+
+        const homeOpponent = `Roster ${away.rosterID}`;
+        const awayOpponent = `Roster ${home.rosterID}`;
+
+        const baseWeek = match.week !== undefined ? match.week : '';
+        const homeWeek = baseWeek !== '' ? baseWeek : findWeek(year, home.rosterID, home.fpts);
+        const awayWeek = baseWeek !== '' ? baseWeek : findWeek(year, away.rosterID, away.fpts);
+
+        // High / Low Scores
+        if(homeRec) {
+            if(home.fpts > homeRec.highScore.score) {
+                homeRec.highScore = { score: home.fpts, opponent: homeOpponent, year, week: homeWeek };
+            }
+            if(home.fpts < homeRec.lowScore.score) {
+                homeRec.lowScore = { score: home.fpts, opponent: homeOpponent, year, week: homeWeek };
+            }
+        }
+        if(awayRec) {
+            if(away.fpts > awayRec.highScore.score) {
+                awayRec.highScore = { score: away.fpts, opponent: awayOpponent, year, week: awayWeek };
+            }
+            if(away.fpts < awayRec.lowScore.score) {
+                awayRec.lowScore = { score: away.fpts, opponent: awayOpponent, year, week: awayWeek };
+            }
+        }
+
+        // Blowouts & Losses
+        const winnerObj = winner === home ? home : away;
+        const loserObj = loser === home ? home : away;
+
+        const winnerWeek = baseWeek !== '' ? baseWeek : findWeek(year, winnerObj.rosterID, winnerObj.fpts);
+        const loserWeek = baseWeek !== '' ? baseWeek : findWeek(year, loserObj.rosterID, loserObj.fpts);
+
+        const winnerOpponent = winner === home ? awayOpponent : homeOpponent;
+        const loserOpponent = loser === home ? awayOpponent : homeOpponent;
+
+        if(winnerRec && differential > winnerRec.biggestBlowout.margin) {
+            winnerRec.biggestBlowout = { margin: differential, opponent: winnerOpponent, year, week: winnerWeek };
+        }
+        if(loserRec && differential > loserRec.worstLoss.margin) {
+            loserRec.worstLoss = { margin: differential, opponent: loserOpponent, year, week: loserWeek };
+        }
+    }
+
+    for(const mId in this.leagueManagerRecords) {
+        if(this.leagueManagerRecords[mId].lowScore.score === 9999) {
+            this.leagueManagerRecords[mId].lowScore.score = 0;
+        }
+    }
+}
+
+Records.prototype.finalizeAllTimeRecords = function({currentYear, lastYear}) {
     const [allTimeBiggestBlowouts, allTimeClosestMatchups] = sortHighAndLow(this.allTimeMatchupDifferentials, 'differential')
     this.allTimeBiggestBlowouts = allTimeBiggestBlowouts;
     this.allTimeClosestMatchups = allTimeClosestMatchups;
 
-    // sort leagueWeekRecords and return the highest weekly scores and lowest weekly scores
     const [leagueWeekHighs, leagueWeekLows] = sortHighAndLow(this.leagueWeekRecords, 'fpts')
     this.leagueWeekHighs = leagueWeekHighs;
     this.leagueWeekLows = leagueWeekLows;
 
-    // sort seasonLongPoints and return the highest season-long scores and lowest season-long scores
     const [mostSeasonLongPoints, leastSeasonLongPoints] = sortHighAndLow(this.seasonLongPoints, 'fptsPerGame')
     this.mostSeasonLongPoints = mostSeasonLongPoints;
     this.leastSeasonLongPoints = leastSeasonLongPoints;
+
+    this.computeManagerHighlights();
 
     this.currentYear = currentYear;
     this.lastYear = lastYear;
 }
 
-
-/**
- * Returns an object with the data needed to build the records page
- * @returns {Object}
- */
 Records.prototype.returnRecords = function() {
     return {
         allTimeBiggestBlowouts: this.allTimeBiggestBlowouts,
